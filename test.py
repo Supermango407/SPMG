@@ -3,8 +3,7 @@ from pygame import Vector2
 import os
 from gameobject import Gameobject
 from collider import CircleCollider, RectCollider
-from draggable import draggable, currently_dragging
-import inspect
+from draggable import draggable
 
 
 @draggable
@@ -23,11 +22,11 @@ class Circle(Gameobject):
     def draw(self):
         pygame.draw.circle(Gameobject.window, self.color, self.global_position(), self.radius)
 
-    def started_dragging(self):
-        print('started', self)
+    # def started_dragging(self):
+        # print('started', self)
     
     def stopped_dragging(self, start:Vector2, end:Vector2):
-        print('stopped', start, end, self)
+        # print('stopped', start, end, self)
         self.set_position(start)
     
     # def update(self):
@@ -50,11 +49,11 @@ class Rect(Gameobject):
         pos = self.global_position()
         pygame.draw.rect(Gameobject.window, self.color, (pos.x, pos.y, self.size[0], self.size[1]))
 
-    def started_dragging(self):
-        print('started', self)
+    # def started_dragging(self):
+    #     print('started', self)
     
-    def stopped_dragging(self, start:Vector2, end:Vector2):
-        print('stopped', start, end, self)
+    # def stopped_dragging(self, start:Vector2, end:Vector2):
+    #     print('stopped', start, end, self)
 
     # def update(self):
     #     super().update()
@@ -67,11 +66,11 @@ rect = Rect(Vector2(250, 250), [150, 100], (255, 255, 255))
 
 if __name__ == '__main__':
     # move window to second monitor
-    os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (1400,75)
+    # os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (1400,75)
 
     # initiate window
     pygame.init()
-    pygame.display.set_caption("Table Top")
+    pygame.display.set_caption("SPMG")
 
     # Set global vars
     window = pygame.display.set_mode((512, 512))
@@ -89,7 +88,6 @@ if __name__ == '__main__':
             else:
                 Gameobject.static_event(event)
         
-        # print(currently_dragging)
         Gameobject.static_update()
         pygame.display.update()
         clock.tick(30)

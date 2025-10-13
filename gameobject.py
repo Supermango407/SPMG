@@ -24,7 +24,8 @@ class Gameobject():
     @staticmethod
     def static_event(event:pygame.event.Event):
         """called every pygame event."""
-        for gameobject in Gameobject.gameobjects:
+        # reversed so that the gamobjects on top have click events before once beneath them
+        for gameobject in reversed(Gameobject.gameobjects):
             if gameobject.listen:
                 gameobject.event(event)
 
@@ -73,6 +74,20 @@ class Gameobject():
         self.position = new_postition
         for child in self.children:
             child.set_position()
+
+    def render_on_top(self, move_parrent:bool=True):
+        """
+            moves `self` to the top of the gameobjects for drawing.
+            move_parrent: if True will move it's parrents to the top as well.
+        """
+        if not move_parrent or self.parrent == None:
+            Gameobject.gameobjects.remove(self)
+            Gameobject.gameobjects.append(self)
+
+            for child in self.children:
+                child.render_on_top(move_parrent=False)
+        else:
+            self.parrent.render_on_top(move_parrent=True)
 
     # returning methods
     def global_position(self) -> Vector2:

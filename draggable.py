@@ -24,7 +24,8 @@ def draggable(gameobject:Gameobject, collider:Collider=None) -> Gameobject:
         global start_dragging
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.collider.mouse_over(): # clicks `self`
+            if currently_dragging == None and self.collider.mouse_over(): # clicks `self`
+                self.render_on_top()
                 currently_dragging = self
                 dragging_offset = self.global_position() - Vector2(pygame.mouse.get_pos())
                 start_dragging = self.global_position()
