@@ -17,10 +17,37 @@ class Circle(Gameobject):
         super().__init__(position, listen=True)
         self.radius = radius
         self.color = color
-        self.collider = CircleCollider(parrent=self, hidden=False)
+        self.collider = CircleCollider(
+            parrent=self,
+            hidden=False,
+            on_click=self.click,
+            on_release=self.release,
+            on_right_click=self.right_click,
+            on_right_release=self.right_release,
+            on_clicking=self.clicking,
+            on_right_clicking=self.right_clicking
+        )
 
     def draw(self):
         pygame.draw.circle(Gameobject.window, self.color, self.global_position(), self.radius)
+
+    def click(self):
+        print('circle clicked')
+
+    def release(self):
+        print('circle released')
+    
+    def right_click(self):
+        print('circle right clicked')
+
+    def right_release(self):
+        print('circle right released')
+
+    def clicking(self):
+        print('circle clicking')
+        
+    def right_clicking(self):
+        print('circle right clicking')
 
     # def started_dragging(self):
         # print('started', self)
