@@ -1,25 +1,33 @@
-import tkinter
-from tkinter import *
+import tkinter as tk
+from tkinter.font import Font
+import screeninfo
+from rearrangeable import Rearrangeable
 
-root = Tk()
+root = tk.Tk()
 
-L = Label(root, text ="Right-click to display menu",
-          width = 40, height = 20)
-L.pack()
+# set screen size
+if len(screeninfo.get_monitors()) == 2: # two monitors
+    root.geometry(f"800x600+{root.winfo_screenwidth()+250}+40")
+else:
+    root.geometry(f"800x600+250+40")
 
-m = Menu(root, tearoff = 0)
-m.add_command(label ="Cut")
-m.add_command(label ="Copy")
-m.add_command(label ="Paste")
-m.add_command(label ="Reload")
-m.add_separator()
-m.add_command(label ="Rename")
+root.title("SPMG Test")
+root.minsize(400, 400)
+# root.state('zoomed')
 
-def do_popup(event):
-    try:
-        m.tk_popup(event.x_root, event.y_root)
-    finally:
-        m.grab_release()
+main_frame = tk.Frame(root)
+main_frame.pack(fill="both", expand=True)
 
-L.bind("<Button-3>", do_popup)
+font=Font(family="Consolas", size=24, weight="normal")
+
+# frames:list[tk.Frame] = []
+# for i in range(20):
+#     frame = tk.Frame(main_frame)
+#     frame.pack(side="top", fill="x", expand=True)
+#     label = tk.Label(frame, text=F"{i}: Frame", font=font)
+#     label.pack(side="left")
+#     frames.append(frame)
+
+r = Rearrangeable(main_frame, 50)
+
 root.mainloop()
