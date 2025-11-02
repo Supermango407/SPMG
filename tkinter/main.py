@@ -54,7 +54,7 @@ def clone_widget(widget:tk.Widget, master:tk.Widget=None) -> tk.Widget:
     return cloned
 
 
-def get_widget_image(widget:tk.Widget) -> Image:
+def widget_image(widget:tk.Widget) -> Image:
     """returns Image of widget."""
     widget.update_idletasks() # Ensures the widget and its children are fully rendered
 

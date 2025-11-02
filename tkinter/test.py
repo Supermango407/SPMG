@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter.font import Font
 import screeninfo
 from rearrangeable import Rearrangeable
-from main import clone_widget, get_widget_image
+from main import clone_widget, widget_image
 
 root = tk.Tk()
 
@@ -35,7 +35,8 @@ font=Font(family="Consolas", size=24, weight="normal")
 #     label.pack(side="left")
 #     frames.append(frame)
 
-r = Rearrangeable(main_frame, 50)
+r = Rearrangeable(main_frame, frame_height=50, starting_frames=20)
+# Rearrangeable.set_root(root)
 
 
 def clone_header(e):
@@ -44,7 +45,7 @@ def clone_header(e):
 
 
 def save_header_image(e):
-    image = get_widget_image(header)
+    image = widget_image(header)
     image.save("widget_screenshot.png")
 
 
