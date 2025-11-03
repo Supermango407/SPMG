@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter.font import Font
 import screeninfo
 from rearrangeable import Rearrangeable
-from main import clone_widget, widget_image
+from main import clone_widget, widget_image, smooth_move_widget
 
 root = tk.Tk()
 
@@ -49,6 +49,11 @@ def save_header_image(e):
     image.save("widget_screenshot.png")
 
 
-root.bind_all("<space>", save_header_image)
+def move_frame(e):
+    r.frames[0].lift()
+    smooth_move_widget(r.frames[0], 1000, y=100)
+    # r.frames[0].place(y=10)
+
+root.bind_all("<space>", move_frame)
 
 root.mainloop()

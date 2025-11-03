@@ -1,5 +1,8 @@
 import tkinter as tk
+import sys
 from PIL import ImageGrab, Image
+sys.path.append('../SPMG')
+from spmg_math import lerp
 
 
 def bind_all_children(widget:tk.Widget ,sequence:str, func:tk.Event):
@@ -8,6 +11,42 @@ def bind_all_children(widget:tk.Widget ,sequence:str, func:tk.Event):
 
     for child in widget.winfo_children():
         bind_all_children(child, sequence, func)
+
+
+def smooth_move_widget(widget:tk.Widget, durration:float, frame_rate:int=30, x:int=None, y:int=None, relx:float=None, rely:float=None):
+    if durration > 0:
+
+        delta_time = 1000/frame_rate
+        step_fraction = delta_time/durration
+
+        place_data = widget.place_info()
+        if x == None:
+            current_x = None
+        else:
+            start_x = int(place_data.get('x'))
+            current_x = lerp(start_x, x, step_fraction)
+        if y == None:
+            current_y = None
+        else:
+            start_y = int(place_data.get('y'))
+            current_y = lerp(start_y, y, step_fraction)
+        if relx == None:
+            current_relx = None
+        else:
+            start_relx = int(place_data.get('relx'))
+            current_relx = lerp(start_relx, relx, step_fraction)
+        if rely == None:
+            current_rely = None
+        else:
+            start_rely = int(place_data.get('rely'))
+            current_rely = lerp(start_rely, rely, step_fraction)
+
+        print(y, rely)
+        widget.place(x=current_x, y=current_y, relx=current_relx, rely=current_rely)
+        widget.after(int(delta_time), lambda: smooth_move_widget(widget, durration-delta_time, frame_rate, x, y, relx, rely))
+    else:
+        print(y)
+        widget.place(x=x, y=y, relx=relx, rely=rely)
 
 
 # from https://stackoverflow.com/questions/46505982/is-there-a-way-to-clone-a-tkinter-widget
