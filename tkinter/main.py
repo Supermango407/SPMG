@@ -6,16 +6,19 @@ from spmg_math import lerp
 
 
 class IntEntry(tk.Entry):
+    
     @staticmethod
     def validate_numeric(input:str):
         return input.isdigit() or input == ""
     
     def __init__(self, master:tk.Widget, **kwargs):
         super().__init__(master, **kwargs)
+        self.insert(0, '0')
         self.config(validate="key", validatecommand=(self.master.register(IntEntry.validate_numeric), '%P'))
 
 
 class FloatEntry(tk.Entry):
+    
     @staticmethod
     def validate_numeric(input:str):
         split_decimal = input.split('.')
@@ -23,6 +26,7 @@ class FloatEntry(tk.Entry):
     
     def __init__(self, master:tk.Widget, **kwargs):
         super().__init__(master, **kwargs)
+        self.insert(0, '0')
         self.config(validate="key", validatecommand=(self.master.register(FloatEntry.validate_numeric), '%P'))
 
 

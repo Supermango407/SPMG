@@ -57,8 +57,11 @@ def move_frame(e):
 
 
 def open_message(e):
-    IntEntry.root = root
-    MessageBox(root, "are you sure you want to delete that.", float)
+    MessageBox(root, "are you sure you want to delete that.", print_type, None)
+
+
+def print_type(value):
+    print(f"{type(value)}: {value}")
 
 
 root.bind_all("<space>", open_message)
