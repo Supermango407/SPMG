@@ -2,6 +2,12 @@ from __future__ import annotations
 import pygame
 from pygame import Vector2
 from enum import Enum
+
+import sys
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
 from gameobject import Gameobject
 
 

@@ -7,6 +7,7 @@ class Gameobject():
     """basic class with postion and drawing capabilities."""
     window:pygame.surface = None
     gameobjects:list[Gameobject] = []
+    mouse_pos:Vector2 = Vector2(0, 0)
 
     # static methods
     @staticmethod
@@ -24,13 +25,15 @@ class Gameobject():
     @staticmethod
     def static_event(event:pygame.event.Event):
         """called every pygame event."""
+        if event.type == pygame.MOUSEMOTION:
+            Gameobject.mouse_pos = pygame.mouse.get_pos()
         # reversed so that the gamobjects on top have click events before once beneath them
         for gameobject in reversed(Gameobject.gameobjects):
             if gameobject.listen:
                 gameobject.event(event)
 
     # built in
-    def __init__(self, position:Vector2, parrent:Gameobject=None, hidden:bool=False, listen:bool=False):
+    def __init__(self, position:Vector2=Vector2(0, 0), parrent:Gameobject=None, hidden:bool=False, listen:bool=False):
         """
             position: the local location relative to it's parrent.
             parrent: the gameobject atached to.
