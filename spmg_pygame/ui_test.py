@@ -2,7 +2,7 @@ import pygame
 from pygame import Vector2
 import screeninfo
 import os
-from gameobject import Gameobject, center_anchor
+from gameobject import Gameobject
 from ui import Text, Button
 
 
@@ -15,15 +15,16 @@ if __name__ == '__main__':
     pygame.init()
     pygame.display.set_caption("SPMG")
 
-    text = Text("testing")
-    button = Button(lambda: print('click'), "next test", parrent=center_anchor)
-
     # Set global vars
     window = pygame.display.set_mode((512, 512))
     clock = pygame.time.Clock()
     Gameobject.window = window
     Gameobject.static_start()
     
+    text = Text("testing", position=Vector2(0, 10), anchor=Vector2(0.5, 0), relative_position=Vector2(0.5, 0))
+    button = Button(lambda: print('click'), "next test", anchor=Vector2(0.5, 0.5), relative_position=Vector2(0.5, 0.5))
+    button.set_position()
+
     # main loop
     running = True
     while running:
@@ -35,6 +36,8 @@ if __name__ == '__main__':
                 Gameobject.static_event(event)
         
         Gameobject.static_update()
+        pygame.draw.circle(window, (0, 255, 255), Vector2(window.get_size())*0.5, 8)
+        pygame.draw.line(window, (0, 255, 255), Vector2(0, 0), Vector2(window.get_size()[0], 0), 4)
         pygame.display.update()
         clock.tick(30)
 

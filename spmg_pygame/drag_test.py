@@ -29,7 +29,7 @@ class Circle(Gameobject):
         )
 
     def draw(self):
-        pygame.draw.circle(Gameobject.window, self.color, self.global_position(), self.radius)
+        pygame.draw.circle(Gameobject.window, self.color, self.get_global_position(), self.radius)
 
     def click(self):
         print('circle clicked')
@@ -73,7 +73,7 @@ class Rect(Gameobject):
         self.collider = RectCollider(parrent=self, hidden=False)
 
     def draw(self):
-        pos = self.global_position()
+        pos = self.get_global_position()
         pygame.draw.rect(Gameobject.window, self.color, (pos.x, pos.y, self.size[0], self.size[1]))
 
     # def started_dragging(self):

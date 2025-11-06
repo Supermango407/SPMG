@@ -21,8 +21,6 @@ class Gameobject():
     @staticmethod
     def static_start():
         """called at start of game."""
-        # create anchors
-
         for gameobject in Gameobject.gameobjects:
             gameobject.start()
 
@@ -43,22 +41,32 @@ class Gameobject():
                 gameobject.event(event)
 
     # built in
-    def __init__(self, position:Vector2=Vector2(0, 0), parrent:Gameobject=None, hidden:bool=False, listen:bool=False):
-        """
-            position: the local location relative to it's parrent.
-            parrent: the gameobject atached to.
-            hidden: if True the Gameobject won't be drawn.
-            listen: if True the Gameobject event method will be called.
+    def __init__(self, position:Vector2=Vector2(0, 0), anchor:Vector2=Vector2(0, 0), relative_position:Vector2=Vector2(0, 0), size:Vector2=Vector2(0, 0), parrent:Gameobject=None, hidden:bool=False, listen:bool=False):
+        f"""
+            `position`: the local location relative to it's parrent.
+            `anchor`: where in the Gameobject the point [0, 0] is located on a scale from 0-1.
+            `relative_position`: where in the parrent gameobect is placed on a scale from 0-1.
+            `size`: the width and height of Gameobject.
+            `parrent`: the Gameobject atached to. defaults to window.
+            `hidden`: if True the Gameobject won't be drawn.
+            `listen`: if True the Gameobject event method will be called.
         """
         self.position = position
+        self.anchor = anchor
+        self.relative_position = relative_position
+        self.size = size
         self.parrent = parrent
         self.hidden = hidden
         self.listen = listen
 
-        self.children:list[Gameobject] = []
-
         if parrent != None:
             parrent.children.append(self)
+
+        self.global_position = Vector2(0, 0)
+        self.window_position = Vector2(0, 0)
+        self.children:list[Gameobject] = []
+
+        self.set_position()
 
         Gameobject.gameobjects.append(self)
     
@@ -81,10 +89,23 @@ class Gameobject():
 
     def set_position(self, new_postition:Vector2=None):
         """set the local position of `self`."""
-        if new_postition == None:
-            new_postition = self.position
+        if new_postition != None:
+            self.position = new_postition
 
-        self.position = new_postition
+        self.global_position = self.get_global_position()
+        self.window_position = self.get_window_position()
+
+        # print(type(self), self.position, self.global_position, self.window_position)
+
+        for child in self.children:
+            child.set_position()
+
+    def set_size(self, new_size:Vector2=None):
+        """set the size of `self`."""
+        if new_size != None:
+            self.size = new_size
+
+        # set children location to correct any children with relative_positions.
         for child in self.children:
             child.set_position()
 
@@ -103,23 +124,16 @@ class Gameobject():
             self.parrent.render_on_top(move_parrent=True)
 
     # returning methods
-    def global_position(self) -> Vector2:
+    def get_window_position(self):
+        return self.global_position - self.anchor.elementwise()*self.size
+
+    def get_global_position(self) -> Vector2:
+        position = self.position.copy()
+
         if self.parrent != None:
-            return self.position + self.parrent.global_position()
+            position += self.parrent.get_global_position()
+            position += self.relative_position.elementwise()*self.parrent.size
         else:
-            return self.position
-
-
-class Anchor(Gameobject):
-
-    def __init__(self, relative_position:Vector2):
-        self.relative_position = relative_position
-        super().__init__()
-
-    def update(self):
-        if self.parrent == None:
-            x, y = Gameobject.window.get_size()
-            self.set_position(Vector2(lerp(0, x, self.relative_position.x), lerp(0, y, self.relative_position.y)))
-
-center_anchor = Anchor(Vector2(0.5, 0.5))
-
+            position += self.relative_position.elementwise()*Gameobject.window.get_size()
+        
+        return position
