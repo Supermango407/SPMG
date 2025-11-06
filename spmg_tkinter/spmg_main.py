@@ -5,6 +5,31 @@ sys.path.append('../SPMG')
 from spmg_math import lerp
 
 
+class IntEntry(tk.Entry):
+    
+    @staticmethod
+    def validate_numeric(input:str):
+        return input.isdigit() or input == ""
+    
+    def __init__(self, master:tk.Widget, **kwargs):
+        super().__init__(master, **kwargs)
+        self.insert(0, '0')
+        self.config(validate="key", validatecommand=(self.master.register(IntEntry.validate_numeric), '%P'))
+
+
+class FloatEntry(tk.Entry):
+    
+    @staticmethod
+    def validate_numeric(input:str):
+        split_decimal = input.split('.')
+        return input.isdigit() or input == "" or (len(split_decimal) == 2 and (split_decimal[0].isdecimal() or split_decimal[0] == "") and (split_decimal[1].isdecimal() or split_decimal[1] == ""))
+    
+    def __init__(self, master:tk.Widget, **kwargs):
+        super().__init__(master, **kwargs)
+        self.insert(0, '0')
+        self.config(validate="key", validatecommand=(self.master.register(FloatEntry.validate_numeric), '%P'))
+
+
 def bind_all_children(widget:tk.Widget ,sequence:str, func:tk.Event):
     """recursively binds `tkinter.widget` and all of its children."""
     widget.bind(sequence, func)

@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter.font import Font
 import screeninfo
 from rearrangeable import Rearrangeable
-from main import clone_widget, widget_image, smooth_move_widget
+from message_box import MessageBox
+from main import IntEntry, clone_widget, widget_image, smooth_move_widget
 
 root = tk.Tk()
 
@@ -54,6 +55,15 @@ def move_frame(e):
     smooth_move_widget(r.frames[0], 1000, y=100)
     # r.frames[0].place(y=10)
 
-root.bind_all("<space>", move_frame)
+
+def open_message(e):
+    MessageBox(root, "are you sure you want to delete that.", print_type, None)
+
+
+def print_type(value):
+    print(f"{type(value)}: {value}")
+
+
+root.bind_all("<space>", open_message)
 
 root.mainloop()
