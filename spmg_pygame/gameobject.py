@@ -2,10 +2,18 @@ from __future__ import annotations
 import pygame
 from pygame import Vector2
 
+import sys
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append("\\".join(current_dir.split("\\")[:-1]))
+
+from spmg_math import lerp
+
 
 class Gameobject():
     """basic class with postion and drawing capabilities."""
-    window:pygame.surface = None
+    window:pygame.Surface = None
+    anchors:dict[Gameobject] = {}
     gameobjects:list[Gameobject] = []
     mouse_pos:Vector2 = Vector2(0, 0)
 
@@ -13,6 +21,8 @@ class Gameobject():
     @staticmethod
     def static_start():
         """called at start of game."""
+        # create anchors
+
         for gameobject in Gameobject.gameobjects:
             gameobject.start()
 
@@ -98,4 +108,18 @@ class Gameobject():
             return self.position + self.parrent.global_position()
         else:
             return self.position
+
+
+class Anchor(Gameobject):
+
+    def __init__(self, relative_position:Vector2):
+        self.relative_position = relative_position
+        super().__init__()
+
+    def update(self):
+        if self.parrent == None:
+            x, y = Gameobject.window.get_size()
+            self.set_position(Vector2(lerp(0, x, self.relative_position.x), lerp(0, y, self.relative_position.y)))
+
+center_anchor = Anchor(Vector2(0.5, 0.5))
 

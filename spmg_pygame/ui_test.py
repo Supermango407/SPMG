@@ -1,20 +1,22 @@
 import pygame
 from pygame import Vector2
+import screeninfo
 import os
-from gameobject import Gameobject
+from gameobject import Gameobject, center_anchor
 from ui import Text, Button
 
 
 if __name__ == '__main__':
-    # move window to second monitor
-    # os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (1400,75)
+    # move window to second monitor if it exsits
+    if len(screeninfo.get_monitors()) == 2: # two monitors
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (1400,75)
 
     # initiate window
     pygame.init()
     pygame.display.set_caption("SPMG")
 
     text = Text("testing")
-    button = Button(lambda: print('click'), "next test", Vector2(100, 150))
+    button = Button(lambda: print('click'), "next test", parrent=center_anchor)
 
     # Set global vars
     window = pygame.display.set_mode((512, 512))

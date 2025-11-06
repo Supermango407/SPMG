@@ -40,7 +40,7 @@ class Text(Gameobject):
     def set_text(self, value:str):
         """sets value of text"""
         self.value = value
-        self.text = Gameobject.font.render(self.value, True, self.color)
+        self.text = self.font.render(self.value, True, self.color)
         
         # set position to realign after text width changes.
         self.set_position()
@@ -48,7 +48,7 @@ class Text(Gameobject):
     def set_color(self, color:tuple[int, int, int]):
          """sets color of text"""
          self.color = color
-         self.text = Gameobject.font.render(self.value, True, self.color)
+         self.text = self.font.render(self.value, True, self.color)
 
     def draw(self):
         """write text on screen."""

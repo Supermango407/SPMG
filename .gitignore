@@ -1,1 +1,3 @@
-tkinter/__pycache__/
+__pycache__/
+spmg_tkinter/__pycache__/
+spmg_pygame/__pycache__/
