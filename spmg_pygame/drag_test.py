@@ -18,7 +18,7 @@ class Circle(Gameobject):
         self.radius = radius
         self.color = color
         self.collider = CircleCollider(
-            parrent=self,
+            parent=self,
             hidden=False,
             on_click=self.click,
             on_release=self.release,
@@ -70,7 +70,7 @@ class Rect(Gameobject):
         super().__init__(position, listen=True)
         self.size = size
         self.color = color
-        self.collider = RectCollider(parrent=self, hidden=False)
+        self.collider = RectCollider(parent=self, hidden=False)
 
     def draw(self):
         pos = self.get_global_position()
@@ -87,8 +87,10 @@ class Rect(Gameobject):
     #     self.set_position(self.position+Vector2(0, -1))
 
 
-circle = Circle(Vector2(150, 100), 50, (255, 255, 255))
-rect = Rect(Vector2(250, 250), [150, 100], (255, 255, 255))
+def start():
+    circle = Circle(Vector2(150, 100), 50, (255, 255, 255))
+    rect = Rect(Vector2(250, 250), [150, 100], (255, 255, 255))
+    pass
 
 
 if __name__ == '__main__':
@@ -102,9 +104,10 @@ if __name__ == '__main__':
     # Set global vars
     window = pygame.display.set_mode((512, 512))
     clock = pygame.time.Clock()
-    Gameobject.window = window
-    Gameobject.static_start()
+    Gameobject.static_start(window)
     
+    start()
+
     # main loop
     running = True
     while running:

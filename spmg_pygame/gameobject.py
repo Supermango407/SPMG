@@ -2,25 +2,24 @@ from __future__ import annotations
 import pygame
 from pygame import Vector2
 
-import sys
-import os
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append("\\".join(current_dir.split("\\")[:-1]))
-
-from spmg_math import lerp
-
 
 class Gameobject():
     """basic class with postion and drawing capabilities."""
+    
     window:pygame.Surface = None
-    anchors:dict[Gameobject] = {}
+    """the window Gameobjects are drawn to."""
     gameobjects:list[Gameobject] = []
+    """a list of gameobjects sorted background to foreground."""
     mouse_pos:Vector2 = Vector2(0, 0)
+    """the position of the mouse cursor"""
 
     # static methods
     @staticmethod
-    def static_start():
+    def static_start(window:pygame.Surface=None):
         """called at start of game."""
+        if window != None:
+            Gameobject.window = window
+
         for gameobject in Gameobject.gameobjects:
             gameobject.start()
 
@@ -32,43 +31,51 @@ class Gameobject():
 
     @staticmethod
     def static_event(event:pygame.event.Event):
-        """called every pygame event."""
+        """called for every pygame event."""
         if event.type == pygame.MOUSEMOTION:
             Gameobject.mouse_pos = pygame.mouse.get_pos()
+        
         # reversed so that the gamobjects on top have click events before once beneath them
         for gameobject in reversed(Gameobject.gameobjects):
             if gameobject.listen:
                 gameobject.event(event)
 
     # built in
-    def __init__(self, position:Vector2=Vector2(0, 0), anchor:Vector2=Vector2(0, 0), relative_position:Vector2=Vector2(0, 0), size:Vector2=Vector2(0, 0), parrent:Gameobject=None, hidden:bool=False, listen:bool=False):
-        f"""
-            `position`: the local location relative to it's parrent.
-            `anchor`: where in the Gameobject the point [0, 0] is located on a scale from 0-1.
-            `relative_position`: where in the parrent gameobect is placed on a scale from 0-1.
-            `size`: the width and height of Gameobject.
-            `parrent`: the Gameobject atached to. defaults to window.
-            `hidden`: if True the Gameobject won't be drawn.
-            `listen`: if True the Gameobject event method will be called.
-        """
+    def __init__(self,
+    position:Vector2=Vector2(0, 0),
+    anchor:Vector2=Vector2(0, 0),
+    relative_position:Vector2=Vector2(0, 0),
+    size:Vector2=Vector2(0, 0), parent:Gameobject=None,
+    hidden:bool=False,
+    listen:bool=False
+    ):
         self.position = position
+        """the local location relative to it's parrent."""
         self.anchor = anchor
+        """where in the Gameobject the point [0, 0] is located on a scale from 0-1."""
         self.relative_position = relative_position
+        """where in the parrent gameobect is placed on a scale from 0-1."""
         self.size = size
-        self.parrent = parrent
+        """the width and height of Gameobject."""
+        self.parent = parent
+        """the Gameobject atached to. defaults to window."""
         self.hidden = hidden
+        """if True the Gameobject won't be drawn."""
         self.listen = listen
-
-        if parrent != None:
-            parrent.children.append(self)
+        """if True the Gameobject event method will be called."""
+        
+        self.parent = None
+        """the Gameobject `self` is attached to."""
+        if parent != None:
+            self.set_parrent(parent)
 
         self.global_position = Vector2(0, 0)
         self.window_position = Vector2(0, 0)
         self.children:list[Gameobject] = []
 
-        self.set_position()
-
         Gameobject.gameobjects.append(self)
+
+        self.set_position()
     
     # void methods
     def start(self) -> None:
@@ -81,59 +88,76 @@ class Gameobject():
             self.draw()
 
     def draw(self) -> None:
+        """draws `self` to `Gameobject.window`."""
         pass
 
-    def event(self, event:pygame.event.Event):
+    def event(self, event:pygame.event.Event) -> None:
         """called every pygame event if `self.listen` is True."""
         pass
 
-    def set_position(self, new_postition:Vector2=None):
-        """set the local position of `self`."""
+    def set_position(self, new_postition:Vector2=None, set_children:bool=True) -> None:
+        """set `position` to `new_position`,
+        then updates `global_position` and `window_position` of `self`.
+        `set_children`: sets children's position if True."""
         if new_postition != None:
             self.position = new_postition
 
         self.global_position = self.get_global_position()
         self.window_position = self.get_window_position()
 
-        # print(type(self), self.position, self.global_position, self.window_position)
+        if set_children:
+            for child in self.children:
+                child.set_position()
 
-        for child in self.children:
-            child.set_position()
-
-    def set_size(self, new_size:Vector2=None):
-        """set the size of `self`."""
+    def set_size(self, new_size:Vector2=None, set_children:bool=True) -> None:
+        """set the size of `self`.
+        `set_children`: sets children's position if True."""
         if new_size != None:
             self.size = new_size
 
-        # set children location to correct any children with relative_positions.
-        for child in self.children:
-            child.set_position()
+        # set position to correct anchor
+        self.set_position()
 
-    def render_on_top(self, move_parrent:bool=True):
-        """
-            moves `self` to the top of the gameobjects for drawing.
-            move_parrent: if True will move it's parrents to the top as well.
-        """
-        if not move_parrent or self.parrent == None:
+        # sets children's positions to correct children with relative_positions.
+        if set_children:
+            for child in self.children:
+                child.set_position()
+
+    def render_on_top(self, move_parrent:bool=True) -> None:
+        """moves `self` to the top of the gameobjects for drawing.
+        move_parrent: if True will move it's parrents to the top as well."""
+        if not move_parrent or self.parent == None:
             Gameobject.gameobjects.remove(self)
             Gameobject.gameobjects.append(self)
 
             for child in self.children:
                 child.render_on_top(move_parrent=False)
         else:
-            self.parrent.render_on_top(move_parrent=True)
+            self.parent.render_on_top(move_parrent=True)
+
+    def set_parrent(self, new_parrent:Gameobject) -> None:
+        """adds self to `new_parrents` children and
+        removes current parrent if it exist."""
+        if self.parent != None:
+            self.parent.children.remove(self)
+        self.parent = new_parrent
+        self.parent.children.append(self)
 
     # returning methods
-    def get_window_position(self):
+    def get_window_position(self) -> Vector2:
+        """returns the window position of `self`.
+        NOTE: it doesn't work if `self.global_position` it's updated."""
         return self.global_position - self.anchor.elementwise()*self.size
 
     def get_global_position(self) -> Vector2:
+        """returns the global position of `self`."""
         position = self.position.copy()
 
-        if self.parrent != None:
-            position += self.parrent.get_global_position()
-            position += self.relative_position.elementwise()*self.parrent.size
+        if self.parent != None:
+            position += self.parent.get_global_position()
+            position += self.relative_position.elementwise()*self.parent.size
         else:
             position += self.relative_position.elementwise()*Gameobject.window.get_size()
         
         return position
+

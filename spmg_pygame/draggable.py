@@ -1,16 +1,25 @@
 from __future__ import annotations
 import pygame
 from pygame import Vector2
+
+# adds the current path to ovoid import errors
+import sys
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
 from gameobject import Gameobject
-import collider
 from collider import Collider
 
 currently_dragging:Gameobject = None
+"""the Gameobject currently dragging."""
 dragging_offset:Vector2 = Vector2(0, 0)
+"""the position of mouse relative the Gameobject dragging."""
 start_dragging = Vector2(0, 0)
+"""the position of Gameobject when started dragging."""
 
 def draggable(gameobject:Gameobject, collider:Collider=None) -> Gameobject:
-    """decorator to make `Gameojbects` dragable."""
+    """a decorator to make `Gameojbects` dragable."""
     if collider != None:
         gameobject.collider = collider
     

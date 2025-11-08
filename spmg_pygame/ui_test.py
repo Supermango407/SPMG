@@ -23,7 +23,6 @@ if __name__ == '__main__':
     
     text = Text("testing", position=Vector2(0, 10), anchor=Vector2(0.5, 0), relative_position=Vector2(0.5, 0))
     button = Button(lambda: print('click'), "next test", anchor=Vector2(0.5, 0.5), relative_position=Vector2(0.5, 0.5))
-    button.set_position()
 
     # main loop
     running = True

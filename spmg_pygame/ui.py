@@ -1,6 +1,7 @@
 import pygame
 from pygame import Vector2
 
+# adds the current path to ovoid import errors
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,43 +13,44 @@ from gameobject import Gameobject
 class Text(Gameobject):
     """for displaying text to window"""
 
-    def __init__(self, value:str, position:Vector2=Vector2(0, 0), anchor:Vector2=Vector2(0, 0), relative_position:Vector2=Vector2(0, 0), parrent:Gameobject=None, color:tuple[int, int, int]=(0, 0, 0)):
-        """
-        `value`: the text that will be on the screen
-        `position`: the location of the sprite onscreen.
-        `anchor`: where the board is placed on the screen eg:
-            top_left, top, top_right, left, center, right, bottom_left, bottom, bottom_right.
-        `parrent`: what object the sprite is placed relitive to.
-            defaults to Window.
-            if not None the sprite wont be drawn, so it can be drawn in the parrents script.
-        `color`: the color of the text
-        """
-        self.value = value
-        self.color = color
+    def __init__(self,
+    value:str,
+    bg_color:tuple[int, int, int]=(0, 0, 0),
+    **kwargs
+    ):
+        self.text_value = value
+        """the str inside `Text`."""
+        self.color = bg_color
+        """the color of `Text`."""
         self.font = pygame.font.SysFont('Consolas', 30)
+        """the font of `Text`."""
 
-        self.text =  self.font.render(self.value, True, color)
-        
-        super().__init__(position=position, anchor=anchor, relative_position=relative_position, parrent=parrent, size=Vector2(self.text.get_size()))
+        self.text =  self.font.render(self.text_value, True, self.color)
+        """the text renderer,"""
+
+        super().__init__(**kwargs)
+
+        self.set_size()
 
     def set_text(self, value:str):
         """sets value of text"""
-        self.value = value
-        self.text = self.font.render(self.value, True, self.color)
+        self.text_value = value
+        self.text = self.font.render(self.text_value, True, self.color)
         
         # set position to realign after text width changes.
-        self.set_position()
         self.set_size()
+        self.set_position()
 
-    def set_size(self, new_size=None):
+    def set_size(self, new_size=None) -> None:
+        """set the size of `Gameobject`."""
         if new_size == None:
-            new_size = self.text.get_size()
+            new_size = Vector2(self.text.get_size())
         super().set_size(new_size)
 
     def set_color(self, color:tuple[int, int, int]):
-         """sets color of text"""
+         """sets color of text."""
          self.color = color
-         self.text = self.font.render(self.value, True, self.color)
+         self.text = self.font.render(self.text_value, True, self.color)
 
     def draw(self):
         """write text on screen."""
@@ -64,40 +66,44 @@ class Text(Gameobject):
 
 
 class Button(Gameobject):
-    
-    """class for button Widget."""
+    """a clickable Gameobject with Text in it."""
 
-
-    def __init__(self, onclick:callable, text_value:str="", position:Vector2=Vector2(0, 0), anchor:Vector2=Vector2(0, 0), relative_position:Vector2=Vector2(0, 0), text_color:tuple[int, int, int]=(0, 0, 0), bg_color:tuple[int, int, int]=(223, 223, 223), hover_bg_color:tuple[int, int, int]=(127, 127, 127), parrent:Gameobject=None, **kwargs):
-        """
-        `onclick`: what to do when the button is clicked.
-        `text_value`: the text of the button.
-        `text_color`: the color of the text.
-        `bg_color`: the color of the background, when mouse isn't over button.
-        `hover_bg_color: the color of the background, when mouse is over button.
-        `position`: the location of the sprite onscreen.
-        `anchor`: where the board is placed on the screen eg:
-            top_left, top, top_right, left, center, right, bottom_left, bottom, bottom_right.
-        `parrent`: what object the sprite is placed relitive to.
-            defaults to Window.
-            if not None the sprite wont be drawn, so it can be drawn in the parrents script.
-        """
+    def __init__(
+    self, onclick:callable,
+    text_value:str="",
+    text_color:tuple[int, int, int]=(0, 0, 0),
+    bg_color:tuple[int, int, int]=(223, 223, 223),
+    hover_bg_color:tuple[int, int, int]=(127, 127, 127),
+    **kwargs
+    ):
         self.onclick = onclick
+        """called when button is clicked."""
         self.text_value = text_value
+        """the str inside button."""
         self.text_color = text_color
+        """the color of the text inside button."""
         self.bg_color = bg_color
+        """the background color of button."""
         self.hover_bg_color = hover_bg_color
+        """the background of button when button when mouse is over."""
         
-        super().__init__(position=position, anchor=anchor, relative_position=relative_position, parrent=parrent, listen=True)
-        
-        self.text:Text = Text(value=self.text_value, anchor=Vector2(0.5, 0.5), parrent=self, color=text_color)
-        self.set_position()
+        self.text:Text = Text(value=self.text_value, anchor=Vector2(0.5, 0.5), bg_color=self.text_color)
+        """the text Gameobject."""
+
+        super().__init__(listen=True, **kwargs)
+
+        # move text to render infront of button.
+        self.text.render_on_top(self.text)
+        # have to set parrent after super().init is called
+        self.text.set_parrent(self)
+        # sets the size after text added
         self.set_size()
         
-    def set_size(self, new_size = None):
-        if new_size == None and self.text != None:
+    def set_size(self, new_size=None, set_children=True):
+        if self.text != None:
+            self.text.set_size(new_size)
             new_size = self.text.size
-        return super().set_size(new_size)
+        return super().set_size(new_size, set_children)
         
     def draw(self):
         # draw background
@@ -112,12 +118,10 @@ class Button(Gameobject):
             )
         )
 
-        # draw text
-        # self.text.draw()
         super().draw()
       
     def hovering(self) -> bool:
-        """whethere the mouse is over button or not."""
+        """whether the mouse is over button or not."""
         # the postion of the mouse relitive to the button
         relative_mouse = Gameobject.mouse_pos-self.window_position
 
