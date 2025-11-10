@@ -1,7 +1,14 @@
 import tkinter as tk
 from tkinter.font import Font
 from PIL import Image, ImageTk
-from main import bind_all_children, smooth_move_widget
+
+# adds the current path to ovoid import errors
+import sys
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
+
+from spmg_tkinter.spmg_tkinter_main import bind_all_children, smooth_move_widget
 
 
 class Rearrangeable(object):

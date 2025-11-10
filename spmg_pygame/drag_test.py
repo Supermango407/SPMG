@@ -1,6 +1,13 @@
 import pygame
 from pygame import Vector2
 import os
+
+# adds the current path to ovoid import errors
+import sys
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
+
 from gameobject import Gameobject
 from collider import CircleCollider, RectCollider
 from draggable import draggable

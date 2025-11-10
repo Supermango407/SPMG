@@ -5,9 +5,10 @@ from pygame import Vector2
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(current_dir)
+sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
 
-from gameobject import Gameobject
+# import spmg_pygame.gameobject
+from spmg_pygame.gameobject import Gameobject
 
 
 class Text(Gameobject):
@@ -39,7 +40,6 @@ class Text(Gameobject):
         
         # set position to realign after text width changes.
         self.set_size()
-        self.set_position()
 
     def set_size(self, new_size=None) -> None:
         """set the size of `Gameobject`."""

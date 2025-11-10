@@ -1,6 +1,13 @@
 import tkinter as tk
 from typing import Callable
-from main import IntEntry, FloatEntry
+
+# adds the current path to ovoid import errors
+import sys
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
+
+from spmg_tkinter.spmg_tkinter_main import IntEntry, FloatEntry
 
 
 class MessageBox(object):

@@ -1,9 +1,17 @@
 import tkinter as tk
 from tkinter.font import Font
 import screeninfo
+
+# adds the current path to ovoid import errors
+import sys
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
+
 from rearrangeable import Rearrangeable
 from message_box import MessageBox
-from main import IntEntry, clone_widget, widget_image, smooth_move_widget
+from spmg_tkinter_main import IntEntry, clone_widget, widget_image, smooth_move_widget
+
 
 root = tk.Tk()
 

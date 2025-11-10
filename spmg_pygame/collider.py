@@ -7,7 +7,7 @@ from enum import Enum
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(current_dir)
+sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
 
 from gameobject import Gameobject
 

@@ -1,9 +1,15 @@
 import pygame
 from pygame import Vector2
 import screeninfo
+
+# adds the current path to ovoid import errors
+import sys
 import os
-from gameobject import Gameobject
-from ui import Text, Button
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
+
+from spmg_pygame.gameobject import Gameobject
+from spmg_pygame.ui import Text, Button
 
 
 if __name__ == '__main__':
@@ -18,8 +24,7 @@ if __name__ == '__main__':
     # Set global vars
     window = pygame.display.set_mode((512, 512))
     clock = pygame.time.Clock()
-    Gameobject.window = window
-    Gameobject.static_start()
+    Gameobject.static_start(window)
     
     text = Text("testing", position=Vector2(0, 10), anchor=Vector2(0.5, 0), relative_position=Vector2(0.5, 0))
     button = Button(lambda: print('click'), "next test", anchor=Vector2(0.5, 0.5), relative_position=Vector2(0.5, 0.5))

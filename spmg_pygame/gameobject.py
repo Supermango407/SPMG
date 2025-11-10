@@ -75,6 +75,7 @@ class Gameobject():
 
         Gameobject.gameobjects.append(self)
 
+        self.set_size()
         self.set_position()
     
     # void methods

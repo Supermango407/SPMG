@@ -9,7 +9,7 @@
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/spmg_pygame/drag_test.py",
+            "program": "${workspaceFolder}/spmg_tkinter/spmg_test.py",
             "console": "integratedTerminal"
         }
     ]
