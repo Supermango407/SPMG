@@ -9,7 +9,7 @@ import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
 
-from gameobject import Gameobject
+from spmg_pygame.gameobject import Gameobject
 
 
 class ColliderTypes(Enum):
@@ -100,7 +100,7 @@ class CircleCollider(Collider):
         super().__init__(hidden=hidden, **kwargs)
         
         # default radius to parents raduis if radius is None.
-        radius = None
+        self.radius = None
         """raduis: the size of the collier."""
         if radius != None:
             self.radius = radius

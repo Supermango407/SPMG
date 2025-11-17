@@ -9,7 +9,7 @@ import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
 
-from gameobject import Gameobject
+from spmg_pygame.gameobject import Gameobject
 from collider import Collider
 
 currently_dragging:Gameobject = None
@@ -21,9 +21,23 @@ start_dragging = Vector2(0, 0)
 
 def draggable(gameobject:Gameobject, collider:Collider=None) -> Gameobject:
     """a decorator to make `Gameojbects` dragable."""
-    if collider != None:
-        gameobject.collider = collider
-    
+
+    # save original method
+    og_init = gameobject.__init__
+    # define new method
+    def __init__(self, *args, **kwargs):
+        # call original method
+        og_init(self, *args, **kwargs)
+
+        # make sure the gameobject has events
+        self.listen = True
+
+        # set collider if it exist.
+        if collider != None:
+            self.collider = collider
+    # set old method to new method
+    gameobject.__init__ = __init__
+
 
     # save original method
     og_event = gameobject.event
