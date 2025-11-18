@@ -144,6 +144,11 @@ class Gameobject():
         self.parent = new_parrent
         self.parent.children.append(self)
 
+    def destroy(self) -> None:
+        """destroys gameobject."""
+        Gameobject.gameobjects.remove(self)
+        del(self)
+
     # returning methods
     def get_window_position(self) -> Vector2:
         """returns the window position of `self`.
