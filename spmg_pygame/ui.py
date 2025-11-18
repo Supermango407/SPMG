@@ -17,13 +17,14 @@ class Text(Gameobject):
     def __init__(self,
     value:str,
     bg_color:tuple[int, int, int]=(0, 0, 0),
+    font_size:int = 32,
     **kwargs
     ):
         self.text_value = value
         """the str inside `Text`."""
         self.color = bg_color
         """the color of `Text`."""
-        self.font = pygame.font.SysFont('Consolas', 30)
+        self.font = pygame.font.SysFont('Consolas', font_size)
         """the font of `Text`."""
 
         self.text =  self.font.render(self.text_value, True, self.color)
