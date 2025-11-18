@@ -71,23 +71,29 @@ class Button(Gameobject):
     def __init__(
     self, onclick:callable,
     text_value:str="",
+    disabled:bool=False,
     text_color:tuple[int, int, int]=(0, 0, 0),
     bg_color:tuple[int, int, int]=(223, 223, 223),
     hover_bg_color:tuple[int, int, int]=(127, 127, 127),
+    disabled_bg_color:tuple[int, int, int]=(95, 95, 95),
     **kwargs
     ):
         self.onclick = onclick
         """called when button is clicked."""
         self.text_value = text_value
         """the str inside button."""
+        self.disabled = disabled
+        """whether or not the button will work when clicked."""
         self.text_color = text_color
         """the color of the text inside button."""
         self.bg_color = bg_color
         """the background color of button."""
         self.hover_bg_color = hover_bg_color
-        """the background of button when button when mouse is over."""
+        """the background of button when mouse is over."""
+        self.disabled_bg_color = disabled_bg_color
+        """the background of button when is disabled."""
         
-        self.text:Text = Text(value=self.text_value, anchor=Vector2(0.5, 0.5), bg_color=self.text_color)
+        self.text:Text = Text(value=self.text_value, relative_position=Vector2(0.5, 0.5), anchor=Vector2(0.5, 0.5), bg_color=self.text_color)
         """the text Gameobject."""
 
         super().__init__(listen=True, **kwargs)
@@ -109,7 +115,7 @@ class Button(Gameobject):
         # draw background
         pygame.draw.rect(
             self.window,
-            self.hover_bg_color if self.hovering() else self.bg_color,
+            self.disabled_bg_color if self.disabled else self.hover_bg_color if self.hovering() else self.bg_color,
             (
                 self.window_position.x,
                 self.window_position.y,
@@ -128,6 +134,6 @@ class Button(Gameobject):
         return relative_mouse.x >= 0 and relative_mouse.x <= self.size.x and relative_mouse.y >= 0 and relative_mouse.y <= self.size.y
 
     def event(self, event):
-        if event.type == pygame.MOUSEBUTTONUP and self.hovering():
+        if event.type == pygame.MOUSEBUTTONUP and not self.disabled and self.hovering():
             self.onclick()
 

@@ -160,7 +160,7 @@ class Gameobject():
         position = self.position.copy()
 
         if self.parent != None:
-            position += self.parent.get_global_position()
+            position += self.parent.window_position
             position += self.relative_position.elementwise()*self.parent.size
         else:
             position += self.relative_position.elementwise()*Gameobject.window.get_size()
