@@ -44,7 +44,7 @@ font=Font(family="Consolas", size=24, weight="normal")
 #     label.pack(side="left")
 #     frames.append(frame)
 
-r = Rearrangeable(main_frame, frame_height=50, starting_frames=20)
+r = Rearrangeable(main_frame, frame_height=50, starting_frame_data=list(range(20)))
 # Rearrangeable.set_root(root)
 
 

@@ -36,6 +36,16 @@ class FloatEntry(tk.Entry):
         self.config(validate="key", validatecommand=(self.master.register(FloatEntry.validate_numeric), '%P'))
 
 
+def get_root_of_widget(widget:tk.Widget) -> tk.Widget:
+    """returns the highest parent of the widget"""
+    widget_checking:tk.Widget = widget
+    
+    while widget_checking.master != None:
+        widget_checking = widget_checking.master
+    
+    return widget_checking
+
+
 def bind_all_children(widget:tk.Widget ,sequence:str, func:tk.Event):
     """recursively binds `tkinter.widget` and all of its children."""
     widget.bind(sequence, func)
