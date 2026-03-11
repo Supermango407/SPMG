@@ -45,7 +45,8 @@ class Gameobject():
     position:Vector2=Vector2(0, 0),
     anchor:Vector2=Vector2(0, 0),
     relative_position:Vector2=Vector2(0, 0),
-    size:Vector2=Vector2(0, 0), parent:Gameobject=None,
+    size:Vector2=Vector2(0, 0),
+    parent:Gameobject=None,
     hidden:bool=False,
     listen:bool=False
     ):
@@ -54,11 +55,11 @@ class Gameobject():
         self.anchor = anchor
         """where in the Gameobject the point [0, 0] is located on a scale from 0-1."""
         self.relative_position = relative_position
-        """where in the parrent gameobect is placed on a scale from 0-1."""
+        """where in the parrent gameobject is placed on a scale from 0-1."""
         self.size = size
         """the width and height of Gameobject."""
         self.parent = parent
-        """the Gameobject atached to. defaults to window."""
+        """the Gameobject attached to. defaults to window."""
         self.hidden = hidden
         """if True the Gameobject won't be drawn."""
         self.listen = listen
