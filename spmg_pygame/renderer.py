@@ -14,6 +14,7 @@ from spmg_pygame.gameobject import Gameobject
 
 
 class Canvas_Renderer(Gameobject):
+
     def __init__(self,
     shader_link:str,
     group_size=(32, 32),
@@ -36,12 +37,13 @@ class Canvas_Renderer(Gameobject):
         if default_image == None:
             self.image:Image = Image.new("RGBA", (int(self.size.x), int(self.size.y)), (255, 255, 255, 255))
         else:
-            self.image:Image = default_image
+            self.image:Image = default_image.convert("RGBA")
             self.set_size(Vector2(*self.image.size))
         
         self.context = moderngl.create_standalone_context(require=430)
         
         # create input texture
+        img_bytes = self.image.tobytes()
         self.input_texture = self.context.texture(
             (int(self.size.x), int(self.size.y)),
             components=4,
@@ -67,15 +69,14 @@ class Canvas_Renderer(Gameobject):
         self.pygame_image = pygame.image.fromstring(
             image_bytes,
             self.image.size,
-            self.image.mode
+            self.image.mode,
         )
 
-        self.input_texture.write(image_bytes)
 
     def run_shader(self):
         """runs the shader, and updates the image."""
         self.compute_shader.run(group_x=self.group_size[0], group_y=self.group_size[1])
-        output_data = numpy.frombuffer(self.output_texture.read(), dtype=numpy.uint8).reshape(int(self.size.x), int(self.size.y), 4)
+        output_data = numpy.frombuffer(self.output_texture.read(), dtype=numpy.uint8).reshape(int(self.size.y), int(self.size.x), 4)
         self.image = Image.fromarray(output_data, "RGBA")
 
         # update image surface
@@ -87,9 +88,9 @@ class Canvas_Renderer(Gameobject):
 
         self.input_texture.write(self.image.tobytes())
 
-    def update(self):
-        self.run_shader()
-        super().update()
+    # def update(self):
+    #     self.run_shader()
+    #     super().update()
 
     def draw(self):
         self.window.blit(self.pygame_image, self.window_position)

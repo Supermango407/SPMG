@@ -23,19 +23,55 @@ if __name__ == '__main__':
     pygame.display.set_caption("SPMG")
 
     # Set global vars
-    window = pygame.display.set_mode((576, 576))
+    # window = pygame.display.set_mode((576, 576))
+    window = pygame.display.set_mode((1056, 544))
     clock = pygame.time.Clock()
     Gameobject.static_start(window)
     
-    # default_image = Image.open('spmg_pygame/default_image.png')
+    # default_image = Image.open('C:\\Users\\music\\OneDrive\\Desktop\\398380651_337908712171077_6359366298681019352_n.jpg')
+    # default_image = Image.open('C:\\Users\\music\\OneDrive\\Desktop\\photos\\forest 3.jpg')
+    default_image = Image.open('spmg_pygame/border.png')
+
+    # resize image
+    image_scaler = max(1, default_image.size[0]/1024, default_image.size[1]/512)
+    default_image = default_image.resize((int(default_image.size[0]//image_scaler), int(default_image.size[1]//image_scaler)))
+    
     renderer = Canvas_Renderer(
         "spmg_pygame/shader_test.glsl",
         anchor=Vector2(0.5, 0.5),
         relative_position=Vector2(0.5, 0.5),
-        size=Vector2(512, 512)
-        # default_image=default_image
+        group_size=(16, 16),
+        # size=Vector2(512, 512)
+        default_image=default_image
     )
-    # default_image.close()
+    default_image.close()
+
+
+    class Drawer(Gameobject):
+
+        def __init__(self,
+        position:Vector2=Vector2(0, 0),
+        anchor:Vector2=Vector2(0, 0),
+        relative_position:Vector2=Vector2(0, 0),
+        size:Vector2=Vector2(0, 0),
+        parent:Gameobject=None,
+        hidden:bool=False,
+        listen:bool=False
+        ):
+            super().__init__(position, anchor, relative_position, size, parent, hidden, listen)
+
+        def draw(self):
+            pygame.draw.circle(self.window, (0, 255, 0), self.global_position, 25)
+
+
+    drawer = Drawer(
+        position=Vector2(50, 0),
+        relative_position=Vector2(0.5, 0.5),
+        anchor=Vector2(0.5, 0.5),
+        parent=renderer,
+        size=renderer.size
+    )
+    
 
     # main loop
     running = True

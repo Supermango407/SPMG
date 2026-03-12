@@ -11,8 +11,7 @@ layout (binding = 1, rgba8ui) writeonly uniform uimage2D OutputImage;
 void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
     
-    uvec4 color = imageLoad(InputImage, global_id);
-    color = uvec4(color.r-1, color.g-1, color.b-1, 255);
+    uvec4 color = imageLoad(InputImage, global_id.xy);
     
-    imageStore(OutputImage, global_id, color);
+    imageStore(OutputImage, global_id, color.ggba);
 }
