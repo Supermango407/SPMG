@@ -12,7 +12,7 @@ void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
     
     uvec4 color = imageLoad(InputImage, global_id.xy);
-    color = uvec4(mod(color.r+1, 255), mod(color.g+1, 255), mod(color.b+1, 255), 255);
-    
+    color.rgb = 255-color.rgb;
+
     imageStore(OutputImage, global_id, color);
 }

@@ -28,9 +28,9 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
     Gameobject.static_start(window)
     
-    # default_image = Image.open('C:\\Users\\music\\OneDrive\\Desktop\\398380651_337908712171077_6359366298681019352_n.jpg')
+    default_image = Image.open('C:\\Users\\music\\OneDrive\\Desktop\\398380651_337908712171077_6359366298681019352_n.jpg')
     # default_image = Image.open('C:\\Users\\music\\OneDrive\\Desktop\\photos\\forest 3.jpg')
-    default_image = Image.open('spmg_pygame/border.png')
+    # default_image = Image.open('spmg_pygame/border.png')
 
     # resize image
     image_scaler = max(1, default_image.size[0]/1024, default_image.size[1]/512)
@@ -64,13 +64,13 @@ if __name__ == '__main__':
             pygame.draw.circle(self.window, (0, 255, 0), self.global_position, 25)
 
 
-    drawer = Drawer(
-        position=Vector2(50, 0),
-        relative_position=Vector2(0.5, 0.5),
-        anchor=Vector2(0.5, 0.5),
-        parent=renderer,
-        size=renderer.size
-    )
+    # drawer = Drawer(
+    #     position=Vector2(50, 0),
+    #     relative_position=Vector2(0.5, 0.5),
+    #     anchor=Vector2(0.5, 0.5),
+    #     parent=renderer,
+    #     size=renderer.size
+    # )
     
 
     # main loop
