@@ -1,3 +1,4 @@
+from typing import Union
 import moderngl
 import numpy
 from PIL import Image
@@ -22,26 +23,48 @@ class Renderer(object):
     """takes a image and runs compute shaders on it."""
 
     def __init__(self,
-    shader_path:str,
+    shader_paths:Union[str, list[str]],
     default_image:Image=None,
     size:tuple[int, int]=None,
-    shader_vars:list[ShaderVariable]=[],
-    group_size:tuple[int, int]=(1, 1),
+    shader_vars:Union[list[ShaderVariable], list[list[ShaderVariable]]]=[],
+    group_sizes:Union[tuple[int, int], list[tuple[int, int]]]=None,
     ):
-        self.shader_path:str = shader_path
-        """the path to the file the shader is in."""
-        self.group_size:tuple[int, tuple] = group_size
-        """the size of the groups in the shader."""
-        self.shader_vars:dict[str, ShaderVariable] = {}
-        """the uniform variables in shader."""
+        # set shader attributes to lists if there is only one
+        if not type(shader_paths) is list:
+            shader_paths = [shader_paths]
+        if not type(group_sizes) is list:
+            if group_sizes == None:
+                # assume there are multiple shaders and
+                # set the default values for all of them
+                group_sizes = []
+                for i in shader_paths:
+                    group_sizes.append((1, 1))
+            else:
+                # assume there is only one shader and
+                # set group sizes to be a list of sizes instead of just one
+                group_sizes = [group_sizes]
+        if len(shader_vars) > 0 and not type(shader_vars[0]) is list:
+            shader_vars = [shader_vars]
 
-        for shader_var in shader_vars:
-            if shader_var.value == None:
-                shader_var.value = shader_var.data_type()
-            self.shader_vars[shader_var.name] = shader_var
+        self.shader_paths:list[str] = shader_paths
+        """list of paths to the files where the shaders are."""
+        self.group_sizes:list[tuple[int, tuple]] = group_sizes
+        """list of sizes for the shader groups."""
+        self.shader_vars:list[dict[str, ShaderVariable]] = []
+        """2D list for the uniform variables in shaders."""
 
-        with open(self.shader_path, 'r') as link:
-            self.shader_text = link.read()
+        # set the shader variables
+        for shader, varables in enumerate(shader_vars):
+            self.shader_vars.append({})
+            for shader_var in varables:
+                if shader_var.value == None:
+                    shader_var.value = shader_var.data_type()
+                self.shader_vars[shader][shader_var.name] = shader_var
+
+        self.shader_text = []
+        for path in self.shader_paths:
+            with open(path, 'r') as link:
+                self.shader_text.append(link.read())
         
         # create/get image
         if default_image == None:
@@ -72,26 +95,29 @@ class Renderer(object):
         )
         self.output_texture.bind_to_image(unit=1, read=False, write=True)
 
-        self.compute_shader = self.context.compute_shader(self.shader_text)
+        self.compute_shaders = []
+        for text in self.shader_text:
+            self.compute_shaders.append(self.context.compute_shader(text))
         
-        # set the groups for the shader
-        self.group_size = (int(self.size[0] // group_size[0]), int(self.size[1] // group_size[1]))
+        # set the groups for the shaders
+        for shader, size in enumerate(self.group_sizes):
+            self.group_sizes[shader] = (int(self.size[0] // size[0]), int(self.size[1] // size[1]))
 
     def set_shader_variable(self, variable_name:str, value, shader:int=0):
         """set the uniform variable in shader"""
-        self.shader_vars[variable_name].value = value
-        shader_var = self.shader_vars[variable_name]
-        self.compute_shader[self.shader_vars[variable_name].name] = shader_var.data_type(shader_var.value)
+        self.shader_vars[shader][variable_name].value = value
+        shader_var:ShaderVariable = self.shader_vars[shader][variable_name]
+        self.compute_shaders[shader][shader_var.name] = shader_var.data_type(shader_var.value)
 
     
     def get_shader_var(self, variable_name:str, shader:int=0) -> ShaderVariable:
         """returns the value of shader variable."""
-        return self.shader_vars[variable_name].value
+        return self.shader_vars[shader][variable_name].value
 
 
-    def run_shader(self):
+    def run_shader(self, shader:int=0):
         "runs shader."
-        self.compute_shader.run(group_x=self.group_size[0], group_y=self.group_size[1])
+        self.compute_shaders[shader].run(group_x=self.group_sizes[shader][0], group_y=self.group_sizes[shader][1])
         output_data = numpy.frombuffer(self.output_texture.read(), dtype=numpy.uint8).reshape(self.size[1], self.size[0], 4)
         self.image = Image.fromarray(output_data, "RGBA")
 
@@ -100,6 +126,6 @@ class Renderer(object):
 
 def run_shader(input_image:Image, shader_path:str, group_size:tuple[int, int]=(1, 1)) -> Image:
     """returns `input_image` after shader at `shader_path` is computed."""
-    renderer = Renderer(shader_path=shader_path, default_image=input_image, group_size=group_size)
+    renderer = Renderer(shader_paths=shader_path, default_image=input_image, group_sizes=group_size)
     renderer.run_shader()
     return renderer.image

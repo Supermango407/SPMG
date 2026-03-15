@@ -18,12 +18,17 @@ if __name__ == '__main__':
     # image_scaler = max(1, default_image.size[0]/1024, default_image.size[1]/512)
     # default_image = default_image.resize((int(default_image.size[0]//image_scaler), int(default_image.size[1]//image_scaler)))
     
-    renderer = Renderer("spmg_renderer/shader_test.glsl", size=(512, 512), shader_vars=[ShaderVariable("point", tuple[int, int])])
+    renderer = Renderer(
+        ["spmg_renderer/point_test.glsl", "spmg_renderer/invert_test.glsl"],
+        size=(512, 512),
+        shader_vars=[[ShaderVariable("point", tuple[int, int])]]
+    )
     print(renderer.get_shader_var("point"))
     renderer.set_shader_variable("point", [256, 256])
     print(renderer.get_shader_var("point"))
     
     renderer.run_shader()
+    renderer.run_shader(1)
     # renderer.image.show()
     renderer.image.save("spmg_renderer/save.png")
 

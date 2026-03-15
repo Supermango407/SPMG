@@ -32,10 +32,10 @@ class Canvas_Renderer(Gameobject):
     
         # create renderer
         self.renderer = Renderer(
-            shader_path=shader_path,
+            shader_paths=shader_path,
             default_image=default_image,
             size=None if size == Vector2(0, 0) else (size.x, size.y),
-            group_size=group_size
+            group_sizes=group_size
         )
 
         # create pygame image
@@ -47,9 +47,9 @@ class Canvas_Renderer(Gameobject):
 
         self.set_size(self.pygame_image.get_size())
 
-    def run_shader(self):
+    def run_shader(self, shader:int=0):
         """runs the shader, and updates the image."""
-        self.renderer.run_shader()
+        self.renderer.run_shader(shader)
 
         # update pygame image
         self.pygame_image = pygame.image.fromstring(

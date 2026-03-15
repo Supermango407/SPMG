@@ -37,10 +37,10 @@ if __name__ == '__main__':
     default_image = default_image.resize((int(default_image.size[0]//image_scaler), int(default_image.size[1]//image_scaler)))
     
     renderer = Canvas_Renderer(
-        "spmg_pygame/shader_test.glsl",
+        ["spmg_pygame/shader_test.glsl", "spmg_renderer/invert_test.glsl"],
         anchor=Vector2(0.5, 0.5),
         relative_position=Vector2(0.5, 0.5),
-        group_size=(16, 16),
+        group_size=[(32, 32), (1, 1)],
         # size=Vector2(512, 512)
         default_image=default_image
     )
@@ -82,7 +82,7 @@ if __name__ == '__main__':
                 running = False
             elif event.type == pygame.KEYDOWN:
                 print('run')
-                renderer.run_shader()
+                renderer.run_shader(1)
             else:
                 Gameobject.static_event(event)
         
