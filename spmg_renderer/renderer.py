@@ -1,6 +1,7 @@
 import moderngl
 import numpy
 from PIL import Image
+from dataclasses import dataclass
 
 # adds the current path to ovoid import errors
 import sys
@@ -9,18 +10,35 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
 
 
+@dataclass
+class ShaderVariable(object):
+    """for handling uniform variables in shaders."""
+    name:str
+    data_type:type
+    value=None
+
+
 class Renderer(object):
+    """takes a image and runs compute shaders on it."""
 
     def __init__(self,
     shader_path:str,
     default_image:Image=None,
     size:tuple[int, int]=None,
+    shader_vars:list[ShaderVariable]=[],
     group_size:tuple[int, int]=(1, 1),
     ):
         self.shader_path:str = shader_path
         """the path to the file the shader is in."""
         self.group_size:tuple[int, tuple] = group_size
         """the size of the groups in the shader."""
+        self.shader_vars:dict[str, ShaderVariable] = {}
+        """the uniform variables in shader."""
+
+        for shader_var in shader_vars:
+            if shader_var.value == None:
+                shader_var.value = shader_var.data_type()
+            self.shader_vars[shader_var.name] = shader_var
 
         with open(self.shader_path, 'r') as link:
             self.shader_text = link.read()
@@ -58,6 +76,18 @@ class Renderer(object):
         
         # set the groups for the shader
         self.group_size = (int(self.size[0] // group_size[0]), int(self.size[1] // group_size[1]))
+
+    def set_shader_variable(self, variable_name:str, value, shader:int=0):
+        """set the uniform variable in shader"""
+        self.shader_vars[variable_name].value = value
+        shader_var = self.shader_vars[variable_name]
+        self.compute_shader[self.shader_vars[variable_name].name] = shader_var.data_type(shader_var.value)
+
+    
+    def get_shader_var(self, variable_name:str, shader:int=0) -> ShaderVariable:
+        """returns the value of shader variable."""
+        return self.shader_vars[variable_name].value
+
 
     def run_shader(self):
         "runs shader."
