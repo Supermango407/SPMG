@@ -7,19 +7,42 @@ layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 layout (binding = 0, rgba8ui) uniform uimage2D InputImage;
 layout (binding = 1, rgba8ui) writeonly uniform uimage2D OutputImage;
 
-uniform ivec2 point = ivec2(0, 0);
+layout(std430, binding = 2) buffer InputBuffer {
+    ivec2 values[];
+} point_buffer;
 
+// uniform uvec2 point = uvec2(0, 0);
 
 void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
-    
     uvec4 color = imageLoad(InputImage, global_id.xy);
-    float distance = distance(global_id, point);
 
-    if (distance <= 100) {
-        color = uvec4(0, 0, 0, 255);
-    }
-    else{
+    // float distance = distance(point, global_id);
+    // if (distance <= 100) {
+    //     color = uvec4(0, 0, 0, 255);
+    // }
+
+    // ivec2 points[2];
+    // points[0] = ivec2(0, 0);
+    // points[1] = ivec2(256, 256);
+    
+    int point_count = point_buffer.values.length();
+    if (point_count > 0) {
+        float distance = distance(global_id, point_buffer.values[0]);
+        for (int i = 1; i < point_count; ++i) {
+            ivec2 point = point_buffer.values[i];
+            float distance_checking = distance(global_id, point);
+            if (distance_checking < distance) {
+                distance = distance_checking;
+            }
+        }
+
+        if (distance <= 100) {
+            color = uvec4(0, 0, 0, 255);
+        } else {
+            color = uvec4(255, 255, 255, 255);
+        }
+    } else {
         color = uvec4(255, 255, 255, 255);
     }
 

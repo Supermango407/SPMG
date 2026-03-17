@@ -1,4 +1,5 @@
 from PIL import Image
+import numpy
 
 # adds the current path to ovoid import errors
 import sys
@@ -7,7 +8,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
 
 # import spmg_renderer.renderer as Renderer
-from spmg_renderer.renderer import Renderer, ShaderVariable
+from spmg_renderer.renderer import Renderer, ShaderVariable, ShaderVarTypes
 
 if __name__ == '__main__':
     # default_image:Image = Image.open('C:\\Users\\music\\OneDrive\\Desktop\\398380651_337908712171077_6359366298681019352_n.jpg')
@@ -21,14 +22,21 @@ if __name__ == '__main__':
     renderer = Renderer(
         ["spmg_renderer/point_test.glsl", "spmg_renderer/invert_test.glsl"],
         size=(512, 512),
-        shader_vars=[[ShaderVariable("point", tuple[int, int])]]
+        shader_vars=[[ShaderVariable(
+            name="points",
+            data_type=ShaderVarTypes.IVEC2,
+            array_size=3,
+            array_buffer=2,
+            value=[[0, 0], [256, 256], [512, 512]]
+        )]]
     )
-    print(renderer.get_shader_var("point"))
-    renderer.set_shader_variable("point", [256, 256])
-    print(renderer.get_shader_var("point"))
+
+    print(renderer.get_shader_var("points"))
+    renderer.set_shader_variable("points", [[128, 384], [256, 256], [384, 128]])
+    print(renderer.get_shader_var("points"))
     
     renderer.run_shader()
-    renderer.run_shader(1)
+    # renderer.run_shader(1)
     # renderer.image.show()
     renderer.image.save("spmg_renderer/save.png")
 
