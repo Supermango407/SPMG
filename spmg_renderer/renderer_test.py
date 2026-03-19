@@ -22,21 +22,28 @@ if __name__ == '__main__':
     renderer = Renderer(
         ["spmg_renderer/point_test.glsl", "spmg_renderer/invert_test.glsl"],
         size=(512, 512),
-        shader_vars=[[ShaderVariable(
-            name="points",
-            data_type=ShaderVarTypes.IVEC2,
-            array_size=3,
-            array_buffer=2,
-            value=[[0, 0], [256, 256], [512, 512]]
-        )]]
+        shader_vars=[[
+            ShaderVariable(
+                name="radius",
+                data_type=ShaderVarTypes.INT,
+                value=50
+            ),
+            ShaderVariable(
+                name="points",
+                data_type=ShaderVarTypes.IVEC2,
+                array_size=3,
+                array_buffer=2,
+                value=[[0, 0], [256, 256], [512, 512]]
+            ),
+        ]]
     )
 
-    print(renderer.get_shader_var("points"))
+    print(renderer.get_shader_variable("points"))
     renderer.set_shader_variable("points", [[128, 384], [256, 256], [384, 128]])
-    print(renderer.get_shader_var("points"))
+    print(renderer.get_shader_variable("points"))
     
     renderer.run_shader()
-    # renderer.run_shader(1)
+    renderer.run_shader(1)
     # renderer.image.show()
     renderer.image.save("spmg_renderer/save.png")
 

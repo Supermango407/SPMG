@@ -19,31 +19,33 @@ class ShaderVarType():
     python_type:type
     numpy_type:type
 
+
 class ShaderVarTypes():
-    # BOOL = 1
-    # INT = 2
-    # UINT = 3
-    # FLOAT = 4
-    # DOUBLE = 5
-    VEC2 = ShaderVarType("vec2", 2, tuple[float, float], numpy.int32)
-    # VEC3 = 7
-    # VEC4 = 8
-    IVEC2 = ShaderVarType("ivec2", 2, tuple[int, int], numpy.uint32)
-    # IVEC3 = 10
-    # IVEC4 = 11
-    # UVEC2 = 12
-    # UVEC3 = 13
-    # UVEC4 = 14
+    BOOL = ShaderVarType("bool", 1, bool, numpy.bool)
+    INT = ShaderVarType("int", 1, int, numpy.int32)
+    UINT = ShaderVarType("uint", 1, int, numpy.uint32)
+    FLOAT = ShaderVarType("float", 1, float, numpy.float32)
+    DOUBLE = ShaderVarType("double", 1, float, numpy.float64)
+    VEC2 = ShaderVarType("vec2", 2, tuple[float, float], numpy.float32)
+    VEC3 = ShaderVarType("vec3", 3, tuple[float, float, float], numpy.float32)
+    VEC4 = ShaderVarType("vec4", 4, tuple[float, float, float, float], numpy.float32)
+    IVEC2 = ShaderVarType("ivec2", 2, tuple[int, int], numpy.int32)
+    IVEC3 = ShaderVarType("ivec3", 3, tuple[int, int, int], numpy.int32)
+    IVEC4 = ShaderVarType("ivec4", 4, tuple[int, int, int, int], numpy.int32)
+    UVEC2 = ShaderVarType("uvec2", 2, tuple[int, int], numpy.uint32)
+    UVEC3 = ShaderVarType("uvec3", 3, tuple[int, int, int], numpy.uint32)
+    UVEC4 = ShaderVarType("uvec4", 4, tuple[int, int, int, int], numpy.uint32)
+    BVEC2 = ShaderVarType("bvec2", 2, tuple[bool, bool], numpy.bool)
+    BVEC3 = ShaderVarType("bvec3", 3, tuple[bool, bool, bool], numpy.bool)
+    BVEC4 = ShaderVarType("bvec4", 4, tuple[bool, bool, bool, bool], numpy.bool)
+    DVEC2 = ShaderVarType("dvec2", 2, tuple[float, float], numpy.float64)
+    DVEC3 = ShaderVarType("dvec3", 3, tuple[float, float, float], numpy.float64)
+    DVEC4 = ShaderVarType("dvec4", 4, tuple[float, float, float, float], numpy.float64)
     # TODO
-    # BVEC2 = 15
-    # BVEC3 = 16
-    # BVEC4 = 17
-    # DVEC2 = 18
-    # DVEC3 = 19
-    # DVEC4 = 20
     # MAT2 = 21
     # MAT3 = 22
     # MAT4 = 23
+
 
 @dataclass
 class ShaderVariable(object):
@@ -113,6 +115,9 @@ class Renderer(object):
         
         self.context = moderngl.create_standalone_context(require=430)
         
+        shader_vars_to_set = []
+        """a list of variables with default values to set after compute shader
+        is create. format: [(`name`, `value`, `shader`), ...]"""
         # set the shader variables
         for shader, varables in enumerate(shader_vars):
             self.shader_vars.append({})
@@ -121,6 +126,8 @@ class Renderer(object):
                 if shader_var.array_buffer == None: # not an array
                     if shader_var.value == None: # no default value
                         shader_var.value = shader_var.data_type.python_type()
+                    else:
+                        shader_vars_to_set.append((shader_var.name, shader_var.value, shader))
                 else: # is an array
                     if shader_var.value is None: # no default value
                         array = numpy.zeros([
@@ -129,6 +136,7 @@ class Renderer(object):
                         ])
                         shader_var.value = array
                     else:
+                        shader_vars_to_set.append((shader_var.name, shader_var.value, shader))
                         array = numpy.array(
                             shader_var.value,
                             dtype=shader_var.data_type.numpy_type
@@ -138,7 +146,6 @@ class Renderer(object):
 
                 self.shader_vars[shader][shader_var.name] = shader_var
 
-        
         # create input texture
         self.input_texture = self.context.texture(
             self.size,
@@ -164,6 +171,10 @@ class Renderer(object):
         for shader, size in enumerate(self.group_sizes):
             self.group_sizes[shader] = (int(self.size[0] // size[0]), int(self.size[1] // size[1]))
 
+        # set default_values
+        for name, value, shader in shader_vars_to_set:
+            self.set_shader_variable(name, value, shader)
+
     def set_shader_variable(self, variable_name:str, value, shader:int=0):
         """set the uniform variable in shader"""
         self.shader_vars[shader][variable_name].value = value
@@ -177,10 +188,9 @@ class Renderer(object):
             )
             self.array_buffers[shader][variable_name].write(array.tobytes())
     
-    def get_shader_var(self, variable_name:str, shader:int=0) -> ShaderVariable:
+    def get_shader_variable(self, variable_name:str, shader:int=0) -> ShaderVariable:
         """returns the value of shader variable."""
         return self.shader_vars[shader][variable_name].value
-
 
     def run_shader(self, shader:int=0):
         "runs shader."

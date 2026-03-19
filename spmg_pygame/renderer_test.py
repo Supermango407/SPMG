@@ -10,7 +10,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
 
 from spmg_pygame.gameobject import Gameobject
-from spmg_pygame.renderer import Canvas_Renderer
+from spmg_pygame.renderer import Canvas_Renderer, ShaderVariable, ShaderVarTypes
 
 
 if __name__ == '__main__':
@@ -40,9 +40,16 @@ if __name__ == '__main__':
         ["spmg_pygame/shader_test.glsl", "spmg_renderer/invert_test.glsl"],
         anchor=Vector2(0.5, 0.5),
         relative_position=Vector2(0.5, 0.5),
-        group_size=[(32, 32), (1, 1)],
+        group_sizes=[(1, 1), (1, 1)],
         # size=Vector2(512, 512)
-        default_image=default_image
+        default_image=default_image,
+        shader_vars=[[
+            ShaderVariable(
+                name="offset",
+                data_type=ShaderVarTypes.INT,
+                value=1
+            ),
+        ]]
     )
     default_image.close()
 
@@ -83,6 +90,8 @@ if __name__ == '__main__':
             elif event.type == pygame.KEYDOWN:
                 print('run')
                 renderer.run_shader(1)
+                old_value = renderer.get_shader_variable("offset", 0)
+                renderer.set_shader_variable("offset", old_value*-1, 0)
             else:
                 Gameobject.static_event(event)
         
