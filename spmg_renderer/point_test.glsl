@@ -4,8 +4,8 @@
 // from the image size and these values.
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-layout (binding = 0, rgba8ui) uniform uimage2D InputImage;
-layout (binding = 1, rgba8ui) writeonly uniform uimage2D OutputImage;
+layout (rgba8, binding = 0) uniform image2D InputImage;
+layout (rgba8, binding = 1) writeonly uniform image2D OutputImage;
 
 layout(std430, binding = 2) buffer InputBuffer {
     ivec2 values[];
@@ -15,7 +15,7 @@ uniform int radius = 10;
 
 void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
-    uvec4 color = imageLoad(InputImage, global_id.xy);
+    vec4 color = imageLoad(InputImage, global_id.xy);
 
     // float distance = distance(point, global_id);
     // if (distance <= 100) {
@@ -38,12 +38,12 @@ void main() {
         }
 
         if (distance <= radius) {
-            color = uvec4(0, 0, 0, 255);
+            color = vec4(0, 0, 0, 1);
         } else {
-            color = uvec4(255, 255, 255, 255);
+            color = vec4(1, 1, 1, 1);
         }
     } else {
-        color = uvec4(255, 255, 255, 255);
+        color = vec4(1, 1, 1, 1);
     }
 
     imageStore(OutputImage, global_id, color);

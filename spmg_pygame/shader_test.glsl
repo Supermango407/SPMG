@@ -4,16 +4,16 @@
 // from the image size and these values.
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-layout (binding = 0, rgba8ui) uniform uimage2D InputImage;
-layout (binding = 1, rgba8ui) writeonly uniform uimage2D OutputImage;
+layout (rgba8, binding = 0) uniform image2D InputImage;
+layout (rgba8, binding = 1) writeonly uniform image2D OutputImage;
 
-uniform int offset = 1;
+uniform float offset = 0.00390625; // 1/256
 
 void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
     
-    uvec4 color = imageLoad(InputImage, global_id.xy);
-    color = uvec4(abs(mod(color.r+offset, 255)), abs(mod(color.g+offset, 255)), abs(mod(color.b+offset, 255)), color.a);
+    vec4 color = imageLoad(InputImage, global_id.xy);
+    color = vec4(abs(mod(color.r+offset, 1)), abs(mod(color.g+offset, 1)), abs(mod(color.b+offset, 1)), color.a);
     
     imageStore(OutputImage, global_id, color);
 }

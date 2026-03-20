@@ -46,8 +46,8 @@ if __name__ == '__main__':
         shader_vars=[[
             ShaderVariable(
                 name="offset",
-                data_type=ShaderVarTypes.INT,
-                value=1
+                data_type=ShaderVarTypes.FLOAT,
+                value=0.00390625 # 1/256
             ),
         ]]
     )

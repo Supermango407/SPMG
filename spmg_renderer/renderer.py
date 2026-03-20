@@ -108,7 +108,7 @@ class Renderer(object):
             if size == None:
                 raise ValueError("either default image, or size needs a value")
             self.size = size
-            self.image:Image = Image.new("RGBA", self.size, (255,)*4)
+            self.image:Image = Image.new("RGBA", self.size, (255, 255, 255, 255))
         else:
             self.image:Image = default_image.convert("RGBA")
             self.size = self.image.size
@@ -151,7 +151,7 @@ class Renderer(object):
             self.size,
             components=4,
             data=self.image.tobytes(),
-            dtype='u1'
+            dtype='f1'
         )
         self.input_texture.bind_to_image(unit=0, read=True, write=False)
 
@@ -159,7 +159,7 @@ class Renderer(object):
         self.output_texture = self.context.texture(
             self.size,
             components=4,
-            dtype='u1'
+            dtype='f1'
         )
         self.output_texture.bind_to_image(unit=1, read=False, write=True)
 

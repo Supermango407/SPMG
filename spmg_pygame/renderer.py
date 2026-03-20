@@ -36,7 +36,7 @@ class Canvas_Renderer(Gameobject):
         self.renderer = Renderer(
             shader_paths=shader_paths,
             default_image=default_image,
-            size=None if size == Vector2(0, 0) else (size.x, size.y),
+            size=None if size == Vector2(0, 0) else (int(size.x), int(size.y)),
             shader_vars=shader_vars,
             group_sizes=group_sizes
         )
