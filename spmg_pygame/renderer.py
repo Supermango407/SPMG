@@ -30,7 +30,14 @@ class Canvas_Renderer(Gameobject):
     hidden:bool=False,
     listen:bool=False
     ):
-        super().__init__(position, anchor, relative_position, size, parent, hidden, listen)
+        super().__init__(
+            position=position,
+            anchor=anchor,
+            relative_position=relative_position,
+            size=size, parent=parent,
+            hidden=hidden,
+            listen=listen
+        )
     
         # create renderer
         self.renderer = Renderer(
@@ -68,10 +75,6 @@ class Canvas_Renderer(Gameobject):
     def get_shader_variable(self, variable_name:str, shader:int=0) -> ShaderVariable:
         """returns the value of shader variable."""
         return self.renderer.get_shader_variable(variable_name=variable_name, shader=shader)
-
-    def update(self):
-        self.run_shader()
-        super().update()
 
     def draw(self):
         self.window.blit(self.pygame_image, self.window_position)

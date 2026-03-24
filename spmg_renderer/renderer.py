@@ -41,6 +41,7 @@ class ShaderVarTypes():
     DVEC2 = ShaderVarType("dvec2", 2, tuple[float, float], numpy.float64)
     DVEC3 = ShaderVarType("dvec3", 3, tuple[float, float, float], numpy.float64)
     DVEC4 = ShaderVarType("dvec4", 4, tuple[float, float, float, float], numpy.float64)
+    IMAGE = ShaderVarType("image2D", 1, Image, numpy.ndarray)
     # TODO
     # MAT2 = 21
     # MAT3 = 22
@@ -64,6 +65,7 @@ class ShaderVariable(object):
 
 class Renderer(object):
     """takes a image and runs compute shaders on it."""
+    context:moderngl.Context = None
 
     def __init__(self,
     shader_paths:Union[str, list[str]],
@@ -71,6 +73,7 @@ class Renderer(object):
     size:tuple[int, int]=None,
     shader_vars:Union[list[ShaderVariable], list[list[ShaderVariable]]]=[],
     group_sizes:Union[tuple[int, int], list[tuple[int, int]]]=None,
+    start_buffer:int=0,
     ):
         # set shader attributes to lists if there is only one
         if not type(shader_paths) is list:
@@ -95,8 +98,8 @@ class Renderer(object):
         """list of sizes for the shader groups."""
         self.shader_vars:list[dict[str, ShaderVariable]] = []
         """2D list for the uniform variables in shaders."""
-        self.array_buffers:list[dict[str, moderngl.Buffer]] = []
-        """2D list for array vars, since they need a buffer to assign values."""
+        self.buffers:list[dict[str, moderngl.Buffer]] = []
+        """2D list for array and image vars, since they need a buffer to assign values."""
 
         self.shader_text = []
         for path in self.shader_paths:
@@ -113,7 +116,9 @@ class Renderer(object):
             self.image:Image = default_image.convert("RGBA")
             self.size = self.image.size
         
-        self.context = moderngl.create_standalone_context(require=430)
+        # add context if it doesn't exist
+        if Renderer.context == None:
+            Renderer.context = moderngl.create_standalone_context(require=430)
         
         shader_vars_to_set = []
         """a list of variables with default values to set after compute shader
@@ -121,13 +126,28 @@ class Renderer(object):
         # set the shader variables
         for shader, varables in enumerate(shader_vars):
             self.shader_vars.append({})
-            self.array_buffers.append({})
+            self.buffers.append({})
             for shader_var in varables:
-                if shader_var.array_buffer == None: # not an array
+                if shader_var.array_buffer == None: # not an array or image
                     if shader_var.value == None: # no default value
                         shader_var.value = shader_var.data_type.python_type()
                     else:
                         shader_vars_to_set.append((shader_var.name, shader_var.value, shader))
+                elif shader_var.array_size is None: # is an image
+                    if shader_var.value is None: # no default value
+                        raise(ValueError("image variables need a default value"))
+                    elif type(shader_var.value) is not Image.Image: # default value is not an image
+                        raise(ValueError("image variables need a default value of type Image"))
+                    var_image:Image = shader_var.value
+                    # create image texture
+                    self.buffers[shader][shader_var.name] = Renderer.context.texture(
+                        var_image.size,
+                        components=4,
+                        data=var_image.tobytes(),
+                        dtype='f1'
+                    )
+
+                    self.buffers[shader][shader_var.name].bind_to_image(unit=shader_var.array_buffer, read=True, write=True)
                 else: # is an array
                     if shader_var.value is None: # no default value
                         array = numpy.zeros([
@@ -141,39 +161,39 @@ class Renderer(object):
                             shader_var.value,
                             dtype=shader_var.data_type.numpy_type
                         )
-                    self.array_buffers[shader][shader_var.name] = self.context.buffer(array.tobytes())
-                    self.array_buffers[shader][shader_var.name].bind_to_storage_buffer(shader_var.array_buffer)
+                    self.buffers[shader][shader_var.name] = Renderer.context.buffer(array.tobytes())
+                    self.buffers[shader][shader_var.name].bind_to_storage_buffer(shader_var.array_buffer)
 
                 self.shader_vars[shader][shader_var.name] = shader_var
 
         # create input texture
-        self.input_texture = self.context.texture(
+        self.input_texture = Renderer.context.texture(
             self.size,
             components=4,
             data=self.image.tobytes(),
             dtype='f1'
         )
-        self.input_texture.bind_to_image(unit=0, read=True, write=False)
+        self.input_texture.bind_to_image(unit=start_buffer, write=False)
 
         # create output texture
-        self.output_texture = self.context.texture(
+        self.output_texture = Renderer.context.texture(
             self.size,
             components=4,
             dtype='f1'
         )
-        self.output_texture.bind_to_image(unit=1, read=False, write=True)
+        self.output_texture.bind_to_image(unit=start_buffer+1, read=False, write=True)
 
         self.compute_shaders = []
         for text in self.shader_text:
-            self.compute_shaders.append(self.context.compute_shader(text))
+            self.compute_shaders.append(Renderer.context.compute_shader(text))
 
         # set the groups for the shaders
         for shader, size in enumerate(self.group_sizes):
             self.group_sizes[shader] = (int(self.size[0] // size[0]), int(self.size[1] // size[1]))
 
         # set default_values
-        for name, value, shader in shader_vars_to_set:
-            self.set_shader_variable(name, value, shader)
+        for name, var_image, shader in shader_vars_to_set:
+            self.set_shader_variable(name, var_image, shader)
 
     def set_shader_variable(self, variable_name:str, value, shader:int=0):
         """set the uniform variable in shader"""
@@ -181,16 +201,32 @@ class Renderer(object):
         shader_var:ShaderVariable = self.shader_vars[shader][variable_name]
         if shader_var.array_buffer == None: # not an array
             self.compute_shaders[shader][shader_var.name] = shader_var.data_type.python_type(shader_var.value)
+        elif shader_var.array_size is None: # is an image
+            var_image:Image = shader_var.value
+            self.buffers[shader][shader_var.name].write(var_image.tobytes())
         else: # is an array
             array = numpy.array(
                 shader_var.value,
                 dtype=shader_var.data_type.numpy_type
             )
-            self.array_buffers[shader][variable_name].write(array.tobytes())
+            self.buffers[shader][variable_name].write(array.tobytes())
     
-    def get_shader_variable(self, variable_name:str, shader:int=0) -> ShaderVariable:
+    def get_shader_variable(self, variable_name:str, shader:int=0) -> any:
         """returns the value of shader variable."""
-        return self.shader_vars[shader][variable_name].value
+        shader_var:ShaderVariable = self.shader_vars[shader][variable_name]
+        if shader_var.array_buffer == None: # not an array or image
+            return self.shader_vars[shader][variable_name].value
+        elif shader_var.array_size is None: # is an image
+            bytes = self.buffers[shader][variable_name].read()
+            array = numpy.frombuffer(bytes, dtype='f4')
+            return Image.frombytes("RGBA", shader_var.value.size, array)
+        else: # is an array
+            bytes = self.buffers[shader][variable_name].read()
+            array = numpy.frombuffer(bytes, dtype="f4").reshape(-1, shader_var.data_type.numbers)
+            value = []
+            for i in list(array):
+                value.append(shader_var.data_type.python_type(i))
+            return value
 
     def run_shader(self, shader:int=0):
         "runs shader."
@@ -199,6 +235,7 @@ class Renderer(object):
         self.image = Image.fromarray(output_data, "RGBA")
 
         self.input_texture.write(self.image.tobytes())
+        Renderer.context.finish()
 
 
 def run_shader(input_image:Image, shader_path:str, group_size:tuple[int, int]=(1, 1)) -> Image:
