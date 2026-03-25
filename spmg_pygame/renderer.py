@@ -26,6 +26,7 @@ class Canvas_Renderer(Gameobject):
     anchor:Vector2=Vector2(0, 0),
     relative_position:Vector2=Vector2(0, 0),
     size:Vector2=Vector2(0, 0),
+    default_color:tuple[int, int, int, int]=(255, 255, 255, 255),
     parent:Gameobject=None,
     hidden:bool=False,
     listen:bool=False
@@ -44,6 +45,7 @@ class Canvas_Renderer(Gameobject):
             shader_paths=shader_paths,
             default_image=default_image,
             size=None if size == Vector2(0, 0) else (int(size.x), int(size.y)),
+            default_color=default_color,
             shader_vars=shader_vars,
             group_sizes=group_sizes
         )

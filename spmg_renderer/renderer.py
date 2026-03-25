@@ -73,6 +73,7 @@ class Renderer(object):
     size:tuple[int, int]=None,
     shader_vars:Union[list[ShaderVariable], list[list[ShaderVariable]]]=[],
     group_sizes:Union[tuple[int, int], list[tuple[int, int]]]=None,
+    default_color: tuple[int, int, int, int]=(255, 255, 255, 255),
     start_buffer:int=0,
     ):
         # set shader attributes to lists if there is only one
@@ -111,7 +112,7 @@ class Renderer(object):
             if size == None:
                 raise ValueError("either default image, or size needs a value")
             self.size = size
-            self.image:Image = Image.new("RGBA", self.size, (255, 255, 255, 255))
+            self.image:Image = Image.new("RGBA", self.size, default_color)
         else:
             self.image:Image = default_image.convert("RGBA")
             self.size = self.image.size
