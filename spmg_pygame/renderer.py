@@ -43,8 +43,8 @@ class Canvas_Renderer(Gameobject):
         # create renderer
         self.renderer = Renderer(
             shader_paths=shader_paths,
-            default_image=default_image,
-            size=None if size == Vector2(0, 0) else (int(size.x), int(size.y)),
+            texture_default_value=default_image,
+            texture_size=None if size == Vector2(0, 0) else (int(size.x), int(size.y)),
             default_color=default_color,
             shader_vars=shader_vars,
             group_sizes=group_sizes
@@ -52,9 +52,9 @@ class Canvas_Renderer(Gameobject):
 
         # create pygame image
         self.pygame_image = pygame.image.fromstring(
-            self.renderer.image.tobytes(),
-            self.renderer.image.size,
-            self.renderer.image.mode,
+            self.renderer.input_texture_bytes,
+            self.renderer.texture_size,
+            "RGBA"
         )
 
         self.set_size(self.pygame_image.get_size())
@@ -65,9 +65,9 @@ class Canvas_Renderer(Gameobject):
 
         # update pygame image
         self.pygame_image = pygame.image.fromstring(
-            self.renderer.image.tobytes(),
-            self.renderer.image.size,
-            self.renderer.image.mode
+            self.renderer.input_texture_bytes,
+            self.renderer.texture_size,
+            "RGBA"
         )
 
     def set_shader_variable(self, variable_name:str, value, shader:int=0):

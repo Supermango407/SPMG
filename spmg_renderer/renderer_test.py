@@ -21,7 +21,7 @@ if __name__ == '__main__':
     
     renderer = Renderer(
         ["spmg_renderer/point_test.glsl", "spmg_renderer/invert_test.glsl"],
-        size=(512, 512),
+        texture_size=(512, 512),
         shader_vars=[[
             ShaderVariable(
                 name="radius",
