@@ -73,12 +73,11 @@ class Renderer(object):
     shader_paths:Union[str, list[str]],
     texture_default_value:Image=None,
     texture_size:tuple[int, int]=None,
+    default_color: tuple[int, int, int, int]=(255, 255, 255, 255),
     shader_vars:Union[list[ShaderVariable], list[list[ShaderVariable]]]=[],
     group_sizes:Union[tuple[int, int], list[tuple[int, int]]]=None,
-    default_color: tuple[int, int, int, int]=(255, 255, 255, 255),
     texture_type:ShaderVariable=ShaderVarTypes.IMAGE,
-    start_buffer:int=0,
-    test:bool=False
+    start_buffer:int=0
     ):
         # set shader attributes to lists if there is only one
         if not type(shader_paths) is list:
@@ -116,7 +115,10 @@ class Renderer(object):
             if texture_size is None:
                 raise ValueError("either default image, or size needs a value")
             self.texture_size = texture_size
-            self.input_texture_bytes:Union[Image.Image, numpy.ndarray] = Image.new("RGBA", self.texture_size, default_color).tobytes()
+            if self.texture_type is ShaderVarTypes.IMAGE: # is an image
+                self.input_texture_bytes:Union[Image.Image, numpy.ndarray] = Image.new("RGBA", self.texture_size, default_color).tobytes()
+            else:
+                self.input_texture_bytes:Union[Image.Image, numpy.ndarray] = numpy.full((self.texture_size[1], self.texture_size[0], 4), default_color, dtype=self.texture_type.numpy_type).tobytes()
         else:
             if self.texture_type is ShaderVarTypes.IMAGE: # is an image
                 self.input_texture_bytes = texture_default_value.convert("RGBA").tobytes()
