@@ -11,6 +11,7 @@ sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
 
 from spmg_pygame.gameobject import Gameobject
 from spmg_pygame.renderer import Canvas_Renderer, ShaderVariable, ShaderVarTypes
+from spmg_renderer.renderer import run_shader
 
 
 if __name__ == '__main__':
@@ -36,22 +37,41 @@ if __name__ == '__main__':
     image_scaler = max(1, default_image.size[0]/1024, default_image.size[1]/512)
     default_image = default_image.resize((int(default_image.size[0]//image_scaler), int(default_image.size[1]//image_scaler)))
     
+    # func_test_img = run_shader(default_image, "spmg_renderer/invert_test.glsl")
+    # func_test_img.save("func_test.png")
+
+    # img_var = Image.new("RGBA", (20, 10), (0, 0, 0, 255))
+
     renderer = Canvas_Renderer(
         ["spmg_pygame/shader_test.glsl", "spmg_renderer/invert_test.glsl"],
         anchor=Vector2(0.5, 0.5),
         relative_position=Vector2(0.5, 0.5),
         group_sizes=[(1, 1), (1, 1)],
-        # size=Vector2(512, 512)
+        # size=Vector2(512, 512),
+        # default_color=(0, 255, 255, 255),
         default_image=default_image,
-        shader_vars=[[
-            ShaderVariable(
-                name="offset",
-                data_type=ShaderVarTypes.FLOAT,
-                value=0.00390625 # 1/256
-            ),
-        ]]
+        shader_vars=[
+            [
+                ShaderVariable(
+                    name="offset",
+                    data_type=ShaderVarTypes.FLOAT,
+                    # value= 0.00390625*16 # 1/256
+                ),
+            ],
+            # [
+            #     ShaderVariable(
+            #         name="ImageVar",
+            #         data_type=ShaderVarTypes.IMAGE,
+            #         array_buffer=3,
+            #         value=img_var
+            #     ),
+            # ]
+        ]
     )
+    
     default_image.close()
+    # renderer.run_shader(1)
+    # renderer.get_shader_variable("ImageVar", 1).save('test.png')
 
 
     class Drawer(Gameobject):
@@ -80,6 +100,10 @@ if __name__ == '__main__':
     # )
     
 
+    def update():
+        renderer.run_shader(0)
+
+
     # main loop
     running = True
     while running:
@@ -95,6 +119,7 @@ if __name__ == '__main__':
             else:
                 Gameobject.static_event(event)
         
+        update()
         Gameobject.static_update()
         pygame.display.update()
         clock.tick(30)

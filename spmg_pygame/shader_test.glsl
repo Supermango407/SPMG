@@ -4,8 +4,8 @@
 // from the image size and these values.
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-layout (rgba8, binding = 0) uniform image2D InputImage;
-layout (rgba8, binding = 1) writeonly uniform image2D OutputImage;
+layout (rgba32f, binding = 0) uniform image2D InputImage;
+layout (rgba32f, binding = 1) writeonly uniform image2D OutputImage;
 
 uniform float offset = 0.00390625; // 1/256
 

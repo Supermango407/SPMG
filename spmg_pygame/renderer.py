@@ -52,7 +52,7 @@ class Canvas_Renderer(Gameobject):
 
         # create pygame image
         self.pygame_image = pygame.image.fromstring(
-            self.renderer.input_texture_bytes,
+            (self.renderer.input_texture_array*255).astype('uint8').tobytes(),
             self.renderer.texture_size,
             "RGBA"
         )
@@ -65,7 +65,7 @@ class Canvas_Renderer(Gameobject):
 
         # update pygame image
         self.pygame_image = pygame.image.fromstring(
-            self.renderer.input_texture_bytes,
+            (self.renderer.input_texture_array*255).astype('uint8').tobytes(),
             self.renderer.texture_size,
             "RGBA"
         )
