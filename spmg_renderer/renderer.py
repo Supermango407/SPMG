@@ -8,7 +8,9 @@ from dataclasses import dataclass
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
+new_path = "//".join(sys.path[0].replace("\\", "/").split("/")[:-1])
+if not new_path in sys.path:
+    sys.path.append(new_path)
 
 
 @ dataclass
@@ -258,6 +260,7 @@ class Renderer(object):
         
         self.input_texture.write(self.input_texture_array.tobytes()) 
         Renderer.context.finish()
+
 
 def run_shader(input_image:Image, shader_path:str, group_size:tuple[int, int]=(1, 1)) -> numpy.ndarray:
     """returns image after shader at `shader_path` is computed."""

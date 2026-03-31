@@ -2,15 +2,17 @@ from __future__ import annotations
 import pygame
 from pygame import Vector2
 
-
 # adds the current path to ovoid import errors
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
+new_path = "//".join(sys.path[0].replace("\\", "/").split("/")[:-1])
+if not new_path in sys.path:
+    sys.path.append(new_path)
 
 from spmg_pygame.gameobject import Gameobject
 from collider import Collider
+
 
 currently_dragging:Gameobject = None
 """the Gameobject currently dragging."""

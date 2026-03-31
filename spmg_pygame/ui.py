@@ -5,7 +5,9 @@ from pygame import Vector2
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
+new_path = "//".join(sys.path[0].replace("\\", "/").split("/")[:-1])
+if not new_path in sys.path:
+    sys.path.append(new_path)
 
 # import spmg_pygame.gameobject
 from spmg_pygame.gameobject import Gameobject

@@ -5,10 +5,14 @@ import numpy
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
+new_path = "//".join(sys.path[0].replace("\\", "/").split("/")[:-1])
+
+if not new_path in sys.path:
+    sys.path.append(new_path)
 
 # import spmg_renderer.renderer as Renderer
 from spmg_renderer.renderer import Renderer, ShaderVariable, ShaderVarTypes
+
 
 if __name__ == '__main__':
     # default_image:Image = Image.open('C:\\Users\\music\\OneDrive\\Desktop\\398380651_337908712171077_6359366298681019352_n.jpg')

@@ -7,7 +7,10 @@ from PIL import Image
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append("//".join(sys.path[0].replace("\\", "/").split("/")[:-1]))
+new_path = "//".join(sys.path[0].replace("\\", "/").split("/")[:-1])
+if not new_path in sys.path:
+    sys.path.append(new_path)
+
 
 from spmg_pygame.gameobject import Gameobject
 from spmg_pygame.renderer import Canvas_Renderer, ShaderVariable, ShaderVarTypes
@@ -32,10 +35,11 @@ if __name__ == '__main__':
     default_image = Image.open('C:\\Users\\music\\OneDrive\\Desktop\\398380651_337908712171077_6359366298681019352_n.jpg')
     # default_image = Image.open('C:\\Users\\music\\OneDrive\\Desktop\\photos\\forest 3.jpg')
     # default_image = Image.open('spmg_pygame/border.png')
+    # default_image = Image.open('small_test.jpg')
 
     # resize image
-    image_scaler = max(1, default_image.size[0]/1024, default_image.size[1]/512)
-    default_image = default_image.resize((int(default_image.size[0]//image_scaler), int(default_image.size[1]//image_scaler)))
+    # image_scaler = max(1, default_image.size[0]/1024, default_image.size[1]/512)
+    # default_image = default_image.resize((int(default_image.size[0]//image_scaler), int(default_image.size[1]//image_scaler)))
     
     # func_test_img = run_shader(default_image, "spmg_renderer/invert_test.glsl")
     # func_test_img.save("func_test.png")
@@ -45,11 +49,12 @@ if __name__ == '__main__':
     renderer = Canvas_Renderer(
         ["spmg_pygame/shader_test.glsl", "spmg_renderer/invert_test.glsl"],
         anchor=Vector2(0.5, 0.5),
+        scaler=0.25,
         relative_position=Vector2(0.5, 0.5),
         group_sizes=[(1, 1), (1, 1)],
         # size=Vector2(512, 512),
         # default_color=(0, 255, 255, 255),
-        default_image=default_image,
+        texture_default_value=default_image,
         shader_vars=[
             [
                 ShaderVariable(

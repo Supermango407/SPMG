@@ -1,5 +1,6 @@
 import tkinter as tk
 
+
 class DraggableFrame(tk.Frame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
@@ -24,6 +25,7 @@ class DraggableFrame(tk.Frame):
 
         # Update the frame's position
         self.place(x=x, y=y)
+
 
 if __name__ == "__main__":
     root = tk.Tk()
