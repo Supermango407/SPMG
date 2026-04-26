@@ -97,8 +97,8 @@ class Rearrangeable(object):
 
         # bind unique events, event that treat what frame it happens to uniquely.
         bind_all_children(frame, "<Button-1>", lambda e: (self.frame_clicked(e, frame)))
-        bind_all_children(frame, "<ButtonRelease-1>",lambda e:  (self.mouse_released(e, frame)))
-        bind_all_children(frame, "<B1-Motion>", lambda e: (self.mouse_motion(e, frame)))
+        bind_all_children(frame, "<ButtonRelease-1>",lambda e:  (self.mouse_released(e)))
+        bind_all_children(frame, "<B1-Motion>", lambda e: (self.mouse_motion(e)))
 
         # bind universal events, event that are not related to what frame it happens to.
         bind_all_children(frame, "<MouseWheel>", self.on_mouse_wheel)
@@ -121,8 +121,8 @@ class Rearrangeable(object):
         for i, frame in enumerate(self.frames):
             frame.place(y=self.index_to_pos(i))
 
-    def frame_clicked(self, event:tk.Event, frame:tk.Frame):
-        if Rearrangeable.frame_dragging == None:
+    def frame_clicked(self, event:tk.Event, frame:tk.Frame=None):
+        if frame != None and Rearrangeable.frame_dragging == None:
             # set global vars
             Rearrangeable.frame_dragging = frame
             Rearrangeable.widget_y_offset = -event.y
@@ -134,7 +134,7 @@ class Rearrangeable(object):
             # make frame dragging render on top of other frames.
             frame.lift()
 
-    def mouse_released(self, event:tk.Event, frame:tk.Frame):
+    def mouse_released(self, event:tk.Event):
         if Rearrangeable.frame_dragging != None:
             # sort frames to avoid overlapping errors
             self.sort_frames()
@@ -151,8 +151,8 @@ class Rearrangeable(object):
             Rearrangeable.start_index = 0
             Rearrangeable.last_index = 0
 
-    def mouse_motion(self, event:tk.Event, frame:tk.Frame):
-        if Rearrangeable.frame_dragging == frame:
+    def mouse_motion(self, event:tk.Event):
+        if Rearrangeable.frame_dragging != None:
             y_pos:int = event.y+Rearrangeable.frame_dragging.winfo_y()+Rearrangeable.widget_y_offset
             """the current y_pos of frame dragging."""
             Rearrangeable.frame_dragging.place(x=0, y=y_pos)
