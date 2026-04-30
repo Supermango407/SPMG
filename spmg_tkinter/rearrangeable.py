@@ -49,14 +49,15 @@ class Rearrangeable(object):
         self.scrollbar = tk.Scrollbar(self.parent, orient='vertical', command=self.canvas.yview)
         """the scrollbar for the `scrollable_frame`"""
         self.scrollbar.pack(side='right', fill='y')
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
         self.scrollable_frame = tk.Frame(self.canvas)
         """the main frame the children frames are placed in"""
         self.scrollable_frame_id = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor='nw')
 
+        self.parent.bind("<Configure>", lambda event: self.set_frame_height())
         self.canvas.bind("<Configure>", lambda event: self.canvas.itemconfig(self.scrollable_frame_id, width=event.width))
         self.scrollable_frame.bind("<Configure>", lambda event: self.canvas.configure(scrollregion=self.canvas.bbox('all')))
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
         bind_all_children(parent, "<ButtonRelease-1>", self.mouse_released)
         bind_all_children(parent, "<B1-Motion>", self.mouse_motion)
@@ -73,23 +74,25 @@ class Rearrangeable(object):
         """gets nearest index to `y_pos`."""
         return (y_pos-self.frame_padding)/(self.frame_height+self.frame_padding)
 
+    def set_frame_height(self):
+        height = self.index_to_pos(len(self.frames))
+
+        # make the height of the frame be at least the size of the canvas
+        height = max(height, self.parent.winfo_height())
+        self.scrollable_frame.config(height=height)
+
     def add_frame(self, frame_data) -> tk.Frame:
         """
         creates new frames and adds it to window.
         `start_data`: data you can put into add frame, that will be passed to `create_frame`
             if you want to create frame with initial data.
         """
-        height = self.index_to_pos(len(self.frames)+1)
-        """new height of `scrollable_frame`"""
         y_pos = self.index_to_pos(len(self.frames))
         """y_pos of new frame"""
 
-        # make the height of the frame be at least the size of the canvas
-        height = max(height, self.canvas.winfo_height())
-
         # create draggable frame
         frame = tk.Frame(self.scrollable_frame, background=self.frame_bg_color)
-        self.scrollable_frame.config(height=height)
+        self.set_frame_height()
         frame.place(x=0, y=y_pos, height=self.frame_height, relwidth=1)
 
         # call create_frame to fill frame with watever the user wants.
@@ -202,4 +205,4 @@ class Rearrangeable(object):
     def on_mouse_wheel(self, event:tk.Event):
         """called when mouse is scrolled on any of the frames."""
         self.canvas.yview_scroll(-1 * (event.delta // 120), "units")
-
+    
