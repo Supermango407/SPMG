@@ -41,7 +41,7 @@ class FloatEntry(tk.Entry):
 class EditableLabel(tk.Label):
     """A label that can be edited by clicking on it."""
 
-    def __init__(self, master:tk.Widget, min_width=None, on_save:callable=None, label_kwargs={}, entry_kwargs={}, placing_kwargs={}, **kwargs):
+    def __init__(self, master:tk.Widget, on_save:callable=None, label_kwargs={}, entry_kwargs={}, placing_kwargs={}, **kwargs):
         super().__init__(master, **label_kwargs, **kwargs)
         self.entry = tk.Entry(self.master, **entry_kwargs, **kwargs)
         self.bind("<Button-1>", self.edit)
@@ -63,26 +63,19 @@ class EditableLabel(tk.Label):
         self.entry.delete(0, tk.END) # clear the entry
         self.entry.insert(0, self.cget("text")) # set the entry text to the label text
         
-        # save the old width value to restore it later
-        old_width_value = self.placing_kwargs.get('width')
+        # create a copy of the placing kwargs so that the original
+        # is not modified when adding the width
+        placing = self.placing_kwargs.copy()
 
-        # set the entry width to the label width if
-        # no width value is provided in placing kwargs,
-        # otherwise use the provided width value
-        if old_width_value == None:
-            width = self.winfo_width()
-        else:
-            width = old_width_value
-            
-            # remove width from placing kwargs to avoid conflicts with entry width
-            del(self.placing_kwargs['width'])
+        if 'x' not in placing:
+            placing['x'] = self.winfo_x()
+        if 'y' not in placing:
+            placing['y'] = self.winfo_y()
+        if 'width' not in placing:
+            placing['width'] = self.winfo_width()
 
-        self.entry.place(x=self.winfo_x(), y=self.winfo_y(), width=width, **self.placing_kwargs)
+        self.entry.place(**placing)
         self.entry.focus()
-
-        # restore the old width value 
-        if old_width_value != None:
-            self.placing_kwargs['width'] = old_width_value
 
         self.entry.bind("<Return>", self.save)
         self.entry.bind("<FocusOut>", self.save)
