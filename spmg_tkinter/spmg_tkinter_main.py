@@ -50,18 +50,22 @@ class EditableLabel(tk.Label):
         for example `{"relx":0.5, "rely":0.5, "anchor":"center"}`"""
         self.on_save = on_save
 
-    def save(self, event):
+        self.editing = False
+
+    def save(self, event=None):
         """turned the text back a a label."""
         self.config(text=self.entry.get())
         self.entry.place_forget()
+        self.editing = False
 
         if self.on_save != None:
-            self.save = self.on_save()
+            self.on_save()
 
     def edit(self, event):
         """changes the text to and entry to edit the text."""
         self.entry.delete(0, tk.END) # clear the entry
         self.entry.insert(0, self.cget("text")) # set the entry text to the label text
+        self.editing = True
         
         # create a copy of the placing kwargs so that the original
         # is not modified when adding the width
