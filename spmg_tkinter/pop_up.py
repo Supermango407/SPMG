@@ -19,7 +19,7 @@ class PopUp(object):
         self.button_font = button_font
         self.frame = tk.Frame(self.root, background='gray12')
         
-        self.root.bind("<Button-1>", lambda e: self.hide())
+        self.root.bind_all("<Button-1>", lambda e: self.hide())
     
     def clear_frame(self):
         """deletes everything in `self.frame`."""

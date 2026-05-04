@@ -41,17 +41,19 @@ class FloatEntry(tk.Entry):
 class EditableLabel(tk.Label):
     """A label that can be edited by clicking on it."""
 
-    def __init__(self, master:tk.Widget, on_save:callable=None, label_kwargs={}, entry_kwargs={}, placing_kwargs={}, **kwargs):
+    def __init__(self, master:tk.Widget, on_save:callable=None, enable_editing:bool=True, label_kwargs={}, entry_kwargs={}, placing_kwargs={}, **kwargs):
         super().__init__(master, **label_kwargs, **kwargs)
-        self.entry = tk.Entry(self.master, **entry_kwargs, **kwargs)
-        self.bind("<Button-1>", self.edit)
+        self.on_save = on_save
+        self.enable_editing = enable_editing
+        self.editing = False
+
         self.placing_kwargs = placing_kwargs
         """the key word arguments used to place the entry,
         for example `{"relx":0.5, "rely":0.5, "anchor":"center"}`"""
-        self.on_save = on_save
-
-        self.editing = False
-
+        
+        self.entry = tk.Entry(self.master, **entry_kwargs, **kwargs)
+        self.bind("<Button-1>", self.edit)
+        
     def save(self, event=None):
         """turned the text back a a label."""
         self.config(text=self.entry.get())
@@ -61,8 +63,11 @@ class EditableLabel(tk.Label):
         if self.on_save != None:
             self.on_save()
 
-    def edit(self, event):
+    def edit(self, event=None):
         """changes the text to and entry to edit the text."""
+        if self.editing or not self.enable_editing:
+            return
+        
         self.entry.delete(0, tk.END) # clear the entry
         self.entry.insert(0, self.cget("text")) # set the entry text to the label text
         self.editing = True
